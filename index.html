@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Risk Dice Battle</title>
+    <link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+    <div class="header">
+        <button class="header-btn" onclick="goHome()">🏠</button>
+        <div class="header-center" id="header-center">
+            <span class="header-icon">🎲</span>
+        </div>
+        <button class="header-btn" onclick="showSettings()">⚙️</button>
+    </div>
+    
+    <div class="container">
+        <div id="player-setup" class="screen active">
+            <div class="screen-content">
+                <h1>Risk Dice Battle</h1>
+                <p style="margin-bottom: 30px;">Enter player names (leave blank to skip)</p>
+                
+                <div class="players-grid">
+                <div class="player-color-card" data-color="#cc0000" style="background: #cc0000">
+                    <input type="text" class="player-name-on-card" placeholder="Red Player" data-player="red">
+                </div>
+                <div class="player-color-card" data-color="#0066cc" style="background: #0066cc">
+                    <input type="text" class="player-name-on-card" placeholder="Blue Player" data-player="blue">
+                </div>
+                <div class="player-color-card" data-color="#009900" style="background: #009900">
+                    <input type="text" class="player-name-on-card" placeholder="Green Player" data-player="green">
+                </div>
+                <div class="player-color-card" data-color="#ffcc00" style="background: #ffcc00">
+                    <input type="text" class="player-name-on-card" placeholder="Yellow Player" data-player="yellow">
+                </div>
+                <div class="player-color-card" data-color="#000000" style="background: #000000">
+                    <input type="text" class="player-name-on-card" placeholder="Black Player" data-player="black">
+                </div>
+                <div class="player-color-card" data-color="#9b59b6" style="background: #9b59b6">
+                    <input type="text" class="player-name-on-card" placeholder="Purple Player" data-player="purple">
+                </div>
+            </div>
+            
+                <button class="btn" onclick="savePlayersAndStart()">Save & Start</button>
+            </div>
+        </div>
+
+        <div id="attacker-selection" class="screen">
+            <div class="screen-content">
+                <h1>Who's Attacking?</h1>
+                <div class="player-selection" id="player-selection-list">
+                    <!-- Players will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+
+        <div id="defender-selection" class="screen">
+            <div class="screen-content">
+                <h1>Who's Defending?</h1>
+                <div class="player-selection" id="defender-selection-list">
+                    <!-- Players will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+
+        <div id="setup-attacker" class="screen">
+            <div class="screen-content">
+                <h1><span id="attacking-player-name">Attacker</span></h1>
+                <div class="army-selector">
+                <label>Number of armies to attack with</label>
+                <div class="army-buttons" id="attacker-army-buttons">
+                    <button class="army-btn" onclick="selectAttackerArmy(1)">1</button>
+                    <button class="army-btn" onclick="selectAttackerArmy(2)">2</button>
+                    <button class="army-btn" onclick="selectAttackerArmy(3)">3</button>
+                    <button class="army-btn" onclick="selectAttackerArmy(4)">4</button>
+                    <button class="army-btn" onclick="selectAttackerArmy(5)">5</button>
+                    <button class="army-btn" onclick="selectAttackerArmy(6)">6</button>
+                    <button class="army-btn" onclick="selectAttackerArmy(7)">7</button>
+                    <button class="army-btn" onclick="selectAttackerArmy(8)">8</button>
+                    <button class="army-btn" onclick="selectAttackerArmy(9)">9</button>
+                    <button class="army-btn" onclick="changeAttackerPage(1)">&gt;</button>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <div id="setup-defender" class="screen">
+            <div class="screen-content">
+                <h1><span id="defending-player-name">Defender</span></h1>
+                <div class="army-selector">
+                <label>Number of armies in territory</label>
+                <div class="army-buttons" id="defender-army-buttons">
+                    <button class="army-btn" onclick="selectDefenderArmy(1)">1</button>
+                    <button class="army-btn" onclick="selectDefenderArmy(2)">2</button>
+                    <button class="army-btn" onclick="selectDefenderArmy(3)">3</button>
+                    <button class="army-btn" onclick="selectDefenderArmy(4)">4</button>
+                    <button class="army-btn" onclick="selectDefenderArmy(5)">5</button>
+                    <button class="army-btn" onclick="selectDefenderArmy(6)">6</button>
+                    <button class="army-btn" onclick="selectDefenderArmy(7)">7</button>
+                    <button class="army-btn" onclick="selectDefenderArmy(8)">8</button>
+                    <button class="army-btn" onclick="selectDefenderArmy(9)">9</button>
+                    <button class="army-btn" onclick="changeDefenderPage(1)">&gt;</button>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <div id="battle-screen" class="screen">
+            <div class="screen-content">
+                <h1>Battle!</h1>
+            <div class="player-info">
+                <div class="player-card" id="attacker-card">
+                    <h3>Attacker</h3>
+                    <div class="army-count" id="attacker-count">0</div>
+                    <div class="battle-info" id="attacker-dice-info"></div>
+                </div>
+                <div class="player-card" id="defender-card">
+                    <h3>Defender</h3>
+                    <div class="army-count" id="defender-count">0</div>
+                    <div class="battle-info" id="defender-dice-info"></div>
+                </div>
+            </div>
+
+            <div class="dice-container" id="dice-display">
+                <!-- Dice will be displayed here -->
+            </div>
+
+            <div class="result-message" id="result-message">
+                Click Roll to start battle!
+            </div>
+
+            <div>
+                <button class="btn" onclick="rollDice()" id="roll-btn">Roll Dice</button>
+                <button class="btn btn-secondary" onclick="withdraw()" id="withdraw-btn">Withdraw</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
