@@ -789,7 +789,18 @@ function updateUILanguage() {
 window.addEventListener('DOMContentLoaded', function() {
     loadPlayers();
     updateUILanguage();
+    setAppHeight();
 });
+
+// Fix viewport height on iOS
+function setAppHeight() {
+    const doc = document.documentElement;
+    doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+}
+
+// Update on resize and orientation change
+window.addEventListener('resize', setAppHeight);
+window.addEventListener('orientationchange', setAppHeight);
 
 // Register service worker for PWA
 if ('serviceWorker' in navigator) {
