@@ -1,19 +1,72 @@
 {
   "name": "risk-dice",
   "version": "1.0.0",
-  "description": "",
+  "description": "Risk Dice Battle - A mobile-optimized PWA implementation of Risk dice battles with custom players and official game rules",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "build:analyze": "vite build --mode analyze",
+    "build:pwa": "vite build --mode production",
+    "preview": "vite preview",
+    "preview:pwa": "vite preview --https",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:ui": "vitest --ui",
+    "lint": "biome check .",
+    "lint:fix": "biome check --apply .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit",
+    "pwa:generate": "pwa-assets-generator"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "risk",
+    "dice",
+    "battle",
+    "game",
+    "pwa",
+    "mobile",
+    "javascript",
+    "progressive-web-app",
+    "board-game",
+    "dice-roller",
+    "risk-game",
+    "strategy-game"
+  ],
+  "author": {
+    "name": "dkmaker",
+    "url": "https://github.com/dkmaker"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dkmaker/risk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dkmaker/risk/issues"
+  },
+  "homepage": "https://github.com/dkmaker/risk#readme",
   "packageManager": "pnpm@10.12.3",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
   "devDependencies": {
-    "vite": "5.4.19"
+    "@biomejs/biome": "1.9.4",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/preact": "^3.2.4",
+    "jsdom": "^26.1.0",
+    "typescript": "^5.8.3",
+    "unocss": "^66.3.3",
+    "vite": "5.4.19",
+    "vite-plugin-pwa": "^1.0.1",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@preact/preset-vite": "^2.10.2",
+    "@preact/signals": "^2.2.1",
+    "preact": "^10.26.9",
+    "workbox-window": "^7.3.0"
   }
 }

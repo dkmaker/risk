@@ -22,6 +22,10 @@
     <link rel="stylesheet" href="./src/styles.css">
 </head>
 <body>
+    <div id="app"></div>
+    
+    <!-- Legacy HTML structure (will be migrated to Preact) -->
+    <div id="legacy-app" style="display: none;">
     <div class="header">
         <button class="header-btn" onclick="goHome()">🏠</button>
         <div class="header-center" id="header-center">
@@ -177,7 +181,8 @@
             </div>
         </div>
     </div>
+    </div>
 
-    <script type="module" src="./src/main.js"></script>
+    <script type="module" src="./src/main.tsx"></script>
 </body>
 </html>
