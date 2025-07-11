@@ -2,9 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Risk Dice Battle</title>
-    <link rel="stylesheet" href="/src/styles.css">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Risk Dice">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#4a5d3a">
+    
+    <!-- iOS Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="./icons/icon-180.png">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="./src/styles.css">
 </head>
 <body>
     <div class="header">
@@ -130,7 +145,7 @@
                 Click Roll to start battle!
             </div>
 
-            <div>
+            <div class="button-container">
                 <button class="btn" onclick="rollDice()" id="roll-btn">Roll Dice</button>
                 <button class="btn btn-secondary" onclick="withdraw()" id="withdraw-btn">Withdraw</button>
             </div>
@@ -138,6 +153,6 @@
         </div>
     </div>
 
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="./src/main.js"></script>
 </body>
 </html>

@@ -383,13 +383,18 @@ function startBattle() {
 
     gameState.defender.initialArmies = gameState.defender.armies;
 
+    // Clear battle screen first
+    clearBattleScreen();
+
     // Set up battle screen
     document.getElementById('attacker-card').style.backgroundColor = gameState.attacker.color;
     document.getElementById('defender-card').style.backgroundColor = gameState.defender.color;
     document.querySelector('#attacker-card h3').textContent = gameState.attacker.name;
     document.querySelector('#defender-card h3').textContent = gameState.defender.name;
     
-    updateBattleDisplay();
+    // Update army counts but not dice info
+    document.getElementById('attacker-count').textContent = gameState.attacker.armies;
+    document.getElementById('defender-count').textContent = gameState.defender.armies;
 
     document.getElementById('setup-defender').classList.remove('active');
     document.getElementById('battle-screen').classList.add('active');
@@ -399,12 +404,6 @@ function startBattle() {
 function updateBattleDisplay() {
     document.getElementById('attacker-count').textContent = gameState.attacker.armies;
     document.getElementById('defender-count').textContent = gameState.defender.armies;
-
-    const attackerDice = Math.min(gameState.attacker.armies, 3);
-    const defenderDice = Math.min(gameState.defender.armies, 2);
-
-    document.getElementById('attacker-dice-info').textContent = `Rolling ${attackerDice} ${attackerDice === 1 ? 'die' : 'dice'}`;
-    document.getElementById('defender-dice-info').textContent = `Rolling ${defenderDice} ${defenderDice === 1 ? 'die' : 'dice'}`;
 
     // Check if battle should end
     if (gameState.attacker.armies < 1 || gameState.defender.armies === 0) {
@@ -417,15 +416,10 @@ function updateBattleDisplay() {
         document.getElementById('result-message').innerHTML = message;
         document.getElementById('roll-btn').style.display = 'none';
         
-        // Hide dice info when battle is over
-        document.getElementById('attacker-dice-info').textContent = '';
-        document.getElementById('defender-dice-info').textContent = '';
-        
         // Change withdraw button to "New Battle"
         const withdrawBtn = document.getElementById('withdraw-btn');
         withdrawBtn.textContent = 'New Battle';
-        withdrawBtn.classList.remove('btn-secondary');
-        withdrawBtn.classList.add('btn');
+        withdrawBtn.className = 'btn'; // Reset to just primary button class
     }
 }
 
@@ -472,12 +466,27 @@ function rollDice() {
 
     // Wait for dice animation to complete before showing results
     setTimeout(() => {
-        // Show loss indicators
-        if (attackerLosses > 0) {
-            showLossIndicator('attacker', attackerLosses);
-        }
-        if (defenderLosses > 0) {
-            showLossIndicator('defender', defenderLosses);
+        // Apply glow effects to player cards
+        const attackerCard = document.getElementById('attacker-card');
+        const defenderCard = document.getElementById('defender-card');
+        
+        // Remove previous glow classes
+        attackerCard.classList.remove('card-winner', 'card-loser', 'card-tie');
+        defenderCard.classList.remove('card-winner', 'card-loser', 'card-tie');
+        
+        // Apply new glow based on results
+        if (attackerLosses > 0 && defenderLosses > 0) {
+            // Both lose - tie glow
+            attackerCard.classList.add('card-tie');
+            defenderCard.classList.add('card-tie');
+        } else if (attackerLosses > 0) {
+            // Defender wins
+            attackerCard.classList.add('card-loser');
+            defenderCard.classList.add('card-winner');
+        } else if (defenderLosses > 0) {
+            // Attacker wins
+            attackerCard.classList.add('card-winner');
+            defenderCard.classList.add('card-loser');
         }
 
         // Update armies
@@ -492,7 +501,7 @@ function rollDice() {
         resultElement.classList.remove('attacker-wins', 'defender-wins', 'both-lose');
         
         if (attackerLosses > 0 && defenderLosses > 0) {
-            resultText = `Both lose armies!<br>Attacker: -${attackerLosses}, Defender: -${defenderLosses}`;
+            resultText = `Both lose armies!<br>Attacker: ${attackerLosses}, Defender: ${defenderLosses}`;
             resultElement.classList.add('both-lose');
         } else if (attackerLosses > 0) {
             resultText = `${gameState.defender.name} wins this round!<br>${gameState.attacker.name} loses ${attackerLosses} ${attackerLosses === 1 ? 'army' : 'armies'}`;
@@ -582,25 +591,6 @@ function displayDiceComparison(attackerRolls, defenderRolls) {
     }, 600);
 }
 
-function showLossIndicator(player, losses) {
-    const countElement = document.getElementById(`${player}-count`);
-    const indicator = document.createElement('div');
-    indicator.className = 'loss-indicator';
-    indicator.textContent = `-${losses}`;
-    
-    // Remove any existing indicators
-    const existing = countElement.querySelector('.loss-indicator');
-    if (existing) {
-        existing.remove();
-    }
-    
-    countElement.appendChild(indicator);
-    
-    // Remove after animation
-    setTimeout(() => {
-        indicator.remove();
-    }, 1500);
-}
 
 function withdraw() {
     const withdrawBtn = document.getElementById('withdraw-btn');
@@ -637,19 +627,26 @@ function clearBattleScreen() {
     document.getElementById('dice-display').innerHTML = '';
     document.getElementById('result-message').innerHTML = 'Click Roll to start battle!';
     document.getElementById('result-message').classList.remove('attacker-wins', 'defender-wins', 'both-lose');
-    document.getElementById('attacker-dice-info').textContent = '';
-    document.getElementById('defender-dice-info').textContent = '';
+    
+    // Clear glow effects from player cards
+    const attackerCard = document.getElementById('attacker-card');
+    const defenderCard = document.getElementById('defender-card');
+    if (attackerCard) {
+        attackerCard.classList.remove('card-winner', 'card-loser', 'card-tie');
+    }
+    if (defenderCard) {
+        defenderCard.classList.remove('card-winner', 'card-loser', 'card-tie');
+    }
     
     // Reset roll button
     const rollBtn = document.getElementById('roll-btn');
     rollBtn.style.display = 'block';
     rollBtn.disabled = false;
     
-    // Reset withdraw button
+    // Reset withdraw button - ensure clean state
     const withdrawBtn = document.getElementById('withdraw-btn');
     withdrawBtn.textContent = 'Withdraw';
-    withdrawBtn.classList.remove('btn');
-    withdrawBtn.classList.add('btn-secondary');
+    withdrawBtn.className = 'btn btn-secondary'; // Reset all classes
 }
 
 function resetToHome() {
@@ -693,3 +690,12 @@ window.showSettings = showSettings;
 window.addEventListener('DOMContentLoaded', function() {
     loadPlayers();
 });
+
+// Register service worker for PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(registration => console.log('ServiceWorker registered'))
+            .catch(err => console.log('ServiceWorker registration failed: ', err));
+    });
+}
