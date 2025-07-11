@@ -137,17 +137,27 @@ h1 {
 
 /* Battle screen specific layout */
 #battle-screen {
-    padding: calc(80px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom)) 10px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.1);
 }
 
 #battle-screen .screen-content {
-    display: grid;
-    grid-template-rows: auto 120px 100px auto 120px;
-    gap: 10px;
+    display: flex;
+    flex-direction: column;
     height: 100%;
-    min-height: auto;
-    justify-content: stretch;
-    align-content: center;
+    width: 100%;
+    max-width: 100%;
+    padding: calc(80px + env(safe-area-inset-top)) 15px calc(20px + env(safe-area-inset-bottom)) 15px;
+}
+
+/* Battle screen title */
+#battle-screen h1 {
+    flex: 0 0 auto;
+    margin: 15px 0 25px;
+    text-align: center;
+    font-size: 2.2rem;
 }
 
 /* Army setup screens layout */
@@ -269,12 +279,13 @@ input[type="number"] {
     background: #3282b8;
     color: white;
     border: none;
-    padding: 15px 40px;
+    padding: 18px 40px;
     font-size: 1.2rem;
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin: 10px;
+    font-weight: 600;
+    min-height: 56px;
 }
 
 .btn:hover {
@@ -300,26 +311,31 @@ input[type="number"] {
     background: #c0392b;
 }
 
-.player-info {
+/* Battle screen player info section */
+#battle-screen .player-info {
+    flex: 1 1 auto;
     display: flex;
-    justify-content: space-around;
-    gap: 10px;
-    height: 100%;
+    justify-content: space-between;
+    gap: 15px;
+    margin: 20px 0;
+    align-items: stretch;
 }
 
 .player-card {
-    padding: 15px;
+    padding: 20px 15px;
     border-radius: 15px;
     flex: 1;
     text-align: center;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    min-height: 140px;
 }
 
 .player-card h3 {
     margin-bottom: 10px;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
+    font-weight: 600;
 }
 
 .player-card.card-winner {
@@ -374,31 +390,33 @@ input[type="number"] {
 }
 
 .army-count {
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: bold;
-    margin: 10px 0;
+    margin: 15px 0;
     position: relative;
 }
 
 
-.dice-container {
+/* Battle screen dice section */
+#battle-screen .dice-container {
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%;
-    gap: 15px;
+    margin: 30px 0;
+    min-height: 120px;
 }
 
 .die {
-    width: 50px;
-    height: 50px;
+    width: 55px;
+    height: 55px;
     background: white;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: bold;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     opacity: 0;
@@ -407,9 +425,9 @@ input[type="number"] {
 
 @media (min-width: 600px) {
     .die {
-        width: 60px;
-        height: 60px;
-        font-size: 2rem;
+        width: 65px;
+        height: 65px;
+        font-size: 2.2rem;
     }
 }
 
@@ -436,10 +454,11 @@ input[type="number"] {
 }
 
 .vs-separator {
-    font-size: 2rem;
-    margin: 0 20px;
+    font-size: 1.8rem;
+    margin: 0 15px;
     color: #f39c12;
     font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .dice-comparison {
@@ -453,10 +472,10 @@ input[type="number"] {
 
 .dice-row {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 .attacker-dice-group, .defender-dice-group {
@@ -514,21 +533,22 @@ input[type="number"] {
     }
 }
 
-.result-message {
+/* Battle screen result message */
+#battle-screen .result-message {
+    flex: 0 0 auto;
     font-size: 1.3rem;
-    padding: 15px;
+    padding: 20px;
+    margin: 20px 0;
     background: rgba(255,255,255,0.1);
     border-radius: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: relative;
-    overflow: hidden;
     text-align: center;
     width: 100%;
-    height: 100%;
-    line-height: 1.2;
+    min-height: 80px;
+    line-height: 1.3;
 }
 
 .result-message.attacker-wins {
@@ -556,16 +576,17 @@ input[type="number"] {
     margin-top: 5px;
 }
 
-.button-container {
+/* Battle screen button container */
+#battle-screen .button-container {
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: stretch;
-    gap: 10px;
+    gap: 15px;
     width: 100%;
-    max-width: 300px;
-    margin: 0 auto;
-    height: 100%;
+    max-width: 320px;
+    margin: 20px auto 0;
 }
 
 
