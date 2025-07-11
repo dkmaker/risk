@@ -1,27 +1,37 @@
-import { useState } from "preact/hooks";
+import { useEffect } from "preact/hooks";
 import "virtual:uno.css";
 import ArmySelection from "./components/ArmySelection";
+import BattleScreen from "./components/BattleScreen";
 import PlayerSelection from "./components/PlayerSelection";
 import PlayerSetup from "./components/PlayerSetup";
 import Header from "./components/shared/Header";
+import { useGameState } from "./hooks/useGameState";
+import { useLocalStorage } from "./hooks/useLocalStorage";
 import { t } from "./translations";
 import type { HeaderIcon, Player } from "./types/game";
 
-type AppScreen =
-  | "setup"
-  | "attacker-selection"
-  | "defender-selection"
-  | "attacker-armies"
-  | "defender-armies"
-  | "battle";
-
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<AppScreen>("setup");
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [selectedAttacker, setSelectedAttacker] = useState<Player | null>(null);
-  const [selectedDefender, setSelectedDefender] = useState<Player | null>(null);
-  const [attackerIndex, setAttackerIndex] = useState<number>(-1);
-  const [attackerArmies, setAttackerArmies] = useState<number>(0);
+  const {
+    currentScreen,
+    players,
+    attacker,
+    defender,
+    initializeGame,
+    selectAttacker,
+    selectDefender,
+    setAttackerArmies,
+    setDefenderArmies,
+    resetGame,
+  } = useGameState();
+
+  const { players: savedPlayers, isLoaded, savePlayers } = useLocalStorage();
+
+  // Load saved players on startup
+  useEffect(() => {
+    if (isLoaded && savedPlayers.length >= 2) {
+      initializeGame(savedPlayers);
+    }
+  }, [isLoaded, savedPlayers, initializeGame]);
 
   const getHeaderIcon = (): HeaderIcon => {
     switch (currentScreen) {
@@ -41,49 +51,32 @@ export default function App() {
   };
 
   const handlePlayersReady = (newPlayers: Player[]) => {
-    setPlayers(newPlayers);
-    setCurrentScreen("attacker-selection");
+    savePlayers(newPlayers);
+    initializeGame(newPlayers);
   };
 
-  const handleAttackerSelect = (player: Player, index: number) => {
-    setSelectedAttacker(player);
-    setAttackerIndex(index);
-    setCurrentScreen("defender-selection");
+  const handleAttackerSelect = (_player: Player, index: number) => {
+    selectAttacker(index);
   };
 
-  const handleDefenderSelect = (player: Player, _index: number) => {
-    setSelectedDefender(player);
-    setCurrentScreen("attacker-armies");
+  const handleDefenderSelect = (_player: Player, index: number) => {
+    selectDefender(index);
   };
 
   const handleAttackerArmySelect = (count: number) => {
     setAttackerArmies(count);
-    setCurrentScreen("defender-armies");
   };
 
   const handleDefenderArmySelect = (count: number) => {
-    // In a real implementation, this would proceed to battle
-    console.log("Battle ready!", {
-      attacker: selectedAttacker?.name,
-      attackerArmies,
-      defender: selectedDefender?.name,
-      defenderArmies: count,
-    });
-    alert(
-      `Battle Setup Complete!\nAttacker: ${selectedAttacker?.name} (${attackerArmies} armies)\nDefender: ${selectedDefender?.name} (${count} armies)`
-    );
+    setDefenderArmies(count);
   };
 
   const handleHomeClick = () => {
-    setCurrentScreen("setup");
-    setSelectedAttacker(null);
-    setSelectedDefender(null);
-    setAttackerIndex(-1);
-    setAttackerArmies(0);
+    resetGame();
   };
 
   const handleSettingsClick = () => {
-    alert("Settings coming in Phase 3!");
+    alert("Settings coming in Phase 4!");
   };
 
   const renderCurrentScreen = () => {
@@ -109,30 +102,35 @@ export default function App() {
               players={players}
               title={t("whoIsDefending")}
               onPlayerSelect={handleDefenderSelect}
-              excludePlayerIndex={attackerIndex}
+              {...(attacker?.playerIndex !== undefined && {
+                excludePlayerIndex: attacker.playerIndex,
+              })}
             />
           </div>
         );
 
       case "attacker-armies":
-        return selectedAttacker ? (
+        return attacker ? (
           <ArmySelection
-            playerName={selectedAttacker.name}
-            playerColor={selectedAttacker.color}
+            playerName={attacker.name}
+            playerColor={attacker.color}
             playerType="attacker"
             onArmySelect={handleAttackerArmySelect}
           />
         ) : null;
 
       case "defender-armies":
-        return selectedDefender ? (
+        return defender ? (
           <ArmySelection
-            playerName={selectedDefender.name}
-            playerColor={selectedDefender.color}
+            playerName={defender.name}
+            playerColor={defender.color}
             playerType="defender"
             onArmySelect={handleDefenderArmySelect}
           />
         ) : null;
+
+      case "battle":
+        return <BattleScreen />;
 
       default:
         return <div>Screen not implemented yet</div>;
@@ -150,7 +148,7 @@ export default function App() {
       <main className="main-content">{renderCurrentScreen()}</main>
 
       <div className="phase-indicator">
-        <strong>Phase 2: Component Migration Demo</strong>
+        <strong>Phase 3: Game Logic Integration</strong>
         <br />
         Current Screen: {currentScreen}
       </div>
