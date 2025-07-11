@@ -14,7 +14,7 @@ export type {
   DiceRoll,
   GameSettings,
   PlayerColor,
-  PlayerColorName,
+  PlayerColorHex,
   GameScreen,
   BattlePhase,
   Language,
@@ -79,7 +79,7 @@ export type {
 
 // Constants and enums
 export {
-  PLAYER_COLORS,
+  PLAYER_COLOR_MAP,
   DEFAULT_BATTLE_CONFIG,
   DEFAULT_GAME_SETTINGS,
 } from "./game";

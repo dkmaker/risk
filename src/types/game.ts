@@ -5,14 +5,14 @@
  * including Player, GameState, and battle-related interfaces.
  */
 
-// Player color type - supports all 6 available colors
-export type PlayerColor = "#e74c3c" | "#3498db" | "#2ecc71" | "#f39c12" | "#2c3e50" | "#9b59b6";
+// Player color names for UI display and logic
+export type PlayerColor = "red" | "blue" | "green" | "yellow" | "black" | "purple";
 
-// Player color names for UI display
-export type PlayerColorName = "red" | "blue" | "green" | "yellow" | "black" | "purple";
+// Player color hex values
+export type PlayerColorHex = "#e74c3c" | "#3498db" | "#2ecc71" | "#f39c12" | "#2c3e50" | "#9b59b6";
 
 // Map of color names to hex values
-export const PLAYER_COLORS: Record<PlayerColorName, PlayerColor> = {
+export const PLAYER_COLOR_MAP: Record<PlayerColor, PlayerColorHex> = {
   red: "#e74c3c",
   blue: "#3498db",
   green: "#2ecc71",
@@ -47,9 +47,9 @@ export interface Player {
   /** Player's display name */
   name: string;
   /** Player's color (hex value) */
-  color: PlayerColor;
+  color: PlayerColorHex;
   /** Player's color name for UI purposes */
-  colorName: PlayerColorName;
+  colorName: PlayerColor;
 }
 
 /**

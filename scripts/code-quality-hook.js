@@ -129,8 +129,9 @@ function runTypeScriptCheck(files) {
       return { success: true, output: "No TypeScript files to check" };
     }
 
-    // Run TypeScript compiler on specific files
-    const result = execSync(`npx tsc --noEmit ${tsFiles.join(" ")}`, {
+    // Run TypeScript compiler on entire project to avoid JSX context issues
+    // Individual file checks don't have access to full tsconfig.json context
+    const result = execSync(`npx tsc --noEmit`, {
       encoding: "utf8",
       cwd: process.cwd(),
       stdio: "pipe",
@@ -315,7 +316,17 @@ function formatErrorOutput(biomeIssues, tsIssues, aiPrompts) {
   return output;
 }
 
-function generateClaudeInstructions(biomeIssues, tsIssues, aiPrompts) {
+function generateClaudeInstructions(biomeIssues, tsIssues, aiPrompts, hadInitialIssues = false) {
+  // If no actual issues remain, only show auto-fix message if we actually fixed something
+  if (biomeIssues.length === 0 && tsIssues.length === 0) {
+    if (hadInitialIssues) {
+      return "All auto-fixable issues have been resolved. No manual fixes required.";
+    } else {
+      // This shouldn't happen - if no issues remain and no initial issues, the hook should exit earlier
+      return "No code quality issues found.";
+    }
+  }
+
   let instructions = "Code quality issues found that require your immediate attention:\n\n";
 
   // TypeScript issues - highest priority
@@ -403,10 +414,15 @@ function main() {
     process.exit(0);
   }
 
-  // Step 1: Run formatting (silently)
+  // Step 1: Run initial check to see if there are any issues before auto-fixing
+  const initialLintResult = runBiomeCheck(modifiedFiles);
+  const initialTsResult = runTypeScriptCheck(modifiedFiles);
+  const hadInitialIssues = !initialLintResult.success || !initialTsResult.success;
+
+  // Step 2: Run formatting (silently)
   const formatResult = runBiomeFormat(modifiedFiles);
 
-  // Step 2: Run linting with auto-fix (first pass)
+  // Step 3: Run linting with auto-fix (first pass)
   const lintResult1 = runBiomeCheck(modifiedFiles);
 
   if (!lintResult1.success) {
@@ -414,10 +430,10 @@ function main() {
     const lintResult2 = runBiomeCheck(modifiedFiles);
   }
 
-  // Step 3: Run TypeScript checking
+  // Step 4: Run TypeScript checking
   const tsResult = runTypeScriptCheck(modifiedFiles);
 
-  // Step 4: Final verification - run all checks again to get current state
+  // Step 5: Final verification - run all checks again to get current state
   const finalLintResult = runBiomeCheck(modifiedFiles);
 
   // Parse only remaining issues that couldn't be auto-fixed
@@ -431,11 +447,20 @@ function main() {
 
   // Check if all checks passed after auto-fixing
   if (finalLintResult.success && tsResult.success) {
-    console.log("✅ All code quality checks passed!");
+    if (hadInitialIssues) {
+      console.log("✅ All auto-fixable issues have been resolved!");
+    } else {
+      console.log("✅ All code quality checks passed!");
+    }
     process.exit(0);
   } else {
     // Generate specific instructions for Claude to fix the issues
-    const instructions = generateClaudeInstructions(remainingBiomeIssues, tsIssues, aiPrompts);
+    const instructions = generateClaudeInstructions(
+      remainingBiomeIssues,
+      tsIssues,
+      aiPrompts,
+      hadInitialIssues
+    );
 
     // Use advanced JSON output to instruct Claude how to fix the issues
     const hookResponse = {

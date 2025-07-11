@@ -5,7 +5,7 @@
  * used throughout the Preact component system.
  */
 
-import type { ComponentChildren, JSX } from "preact";
+import type { ComponentChildren } from "preact";
 import type {
   BattlePlayer,
   BattleResult,
@@ -15,7 +15,7 @@ import type {
   Language,
   Player,
   PlayerColor,
-  PlayerColorName,
+  PlayerColorHex,
 } from "./game";
 
 /**
@@ -231,9 +231,9 @@ export interface PlayerSetupFormProps extends BaseComponentProps {
  */
 export interface PlayerColorCardProps extends BaseComponentProps {
   /** Player color */
-  color: PlayerColor;
+  color: PlayerColorHex;
   /** Player color name */
-  colorName: PlayerColorName;
+  colorName: PlayerColor;
   /** Player name */
   playerName: string;
   /** Name change handler */
