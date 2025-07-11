@@ -6,42 +6,33 @@
 
 /* Custom property for viewport height that works on iOS */
 :root {
-    --app-height: 100vh;
+    --vh: 1vh;
 }
 
 html {
     height: 100%;
-    overflow: hidden;
 }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
     background: #4a5d3a;
     color: #eee;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    -webkit-overflow-scrolling: touch;
-    touch-action: none;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    overflow-x: hidden;
 }
 
 .container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     width: 100%;
     max-width: 400px;
     margin: 0 auto;
     padding: 0;
     text-align: center;
-    overflow: hidden;
+    position: relative;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
 }
 
 h1 {
@@ -51,7 +42,7 @@ h1 {
 }
 
 .header {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
@@ -103,17 +94,14 @@ h1 {
 }
 
 .screen {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     display: none;
     animation: fadeIn 0.3s ease-in;
-    padding: calc(80px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom)) 20px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
+    padding-top: calc(80px + env(safe-area-inset-top));
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    padding-left: 20px;
+    padding-right: 20px;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
 }
 
 .screen.active {
@@ -124,10 +112,6 @@ h1 {
     width: 100%;
     max-width: 360px;
     margin: 0 auto;
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
 
 @keyframes fadeIn {
@@ -136,28 +120,17 @@ h1 {
 }
 
 /* Battle screen specific layout */
-#battle-screen {
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    background: rgba(0, 0, 0, 0.1);
-}
-
 #battle-screen .screen-content {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    width: 100%;
-    max-width: 100%;
-    padding: calc(80px + env(safe-area-inset-top)) 15px calc(20px + env(safe-area-inset-bottom)) 15px;
+    height: calc(var(--vh, 1vh) * 100 - 100px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    justify-content: space-between;
 }
 
 /* Battle screen title */
 #battle-screen h1 {
-    flex: 0 0 auto;
-    margin: 15px 0 25px;
+    margin: 20px 0;
     text-align: center;
-    font-size: 2.2rem;
 }
 
 /* Army setup screens layout */
@@ -313,12 +286,10 @@ input[type="number"] {
 
 /* Battle screen player info section */
 #battle-screen .player-info {
-    flex: 1 1 auto;
     display: flex;
     justify-content: space-between;
     gap: 15px;
     margin: 20px 0;
-    align-items: stretch;
 }
 
 .player-card {
@@ -329,7 +300,7 @@ input[type="number"] {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: 140px;
+    min-height: 120px;
 }
 
 .player-card h3 {
@@ -390,22 +361,21 @@ input[type="number"] {
 }
 
 .army-count {
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: bold;
-    margin: 15px 0;
+    margin: 10px 0;
     position: relative;
 }
 
 
 /* Battle screen dice section */
 #battle-screen .dice-container {
-    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 30px 0;
-    min-height: 120px;
+    margin: 20px 0;
+    min-height: 100px;
 }
 
 .die {
@@ -535,7 +505,6 @@ input[type="number"] {
 
 /* Battle screen result message */
 #battle-screen .result-message {
-    flex: 0 0 auto;
     font-size: 1.3rem;
     padding: 20px;
     margin: 20px 0;
@@ -578,7 +547,6 @@ input[type="number"] {
 
 /* Battle screen button container */
 #battle-screen .button-container {
-    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -586,7 +554,7 @@ input[type="number"] {
     gap: 15px;
     width: 100%;
     max-width: 320px;
-    margin: 20px auto 0;
+    margin: 20px auto;
 }
 
 

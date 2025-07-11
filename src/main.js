@@ -794,13 +794,15 @@ window.addEventListener('DOMContentLoaded', function() {
 
 // Fix viewport height on iOS
 function setAppHeight() {
-    const doc = document.documentElement;
-    doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
 }
 
 // Update on resize and orientation change
 window.addEventListener('resize', setAppHeight);
-window.addEventListener('orientationchange', setAppHeight);
+window.addEventListener('orientationchange', () => {
+    setTimeout(setAppHeight, 100);
+});
 
 // Register service worker for PWA
 if ('serviceWorker' in navigator) {
