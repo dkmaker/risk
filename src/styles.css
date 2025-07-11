@@ -129,7 +129,7 @@ h1 {
 
 /* Battle screen title */
 #battle-screen h1 {
-    margin: 20px 0;
+    margin: 10px 0;
     text-align: center;
 }
 
@@ -289,18 +289,18 @@ input[type="number"] {
     display: flex;
     justify-content: space-between;
     gap: 15px;
-    margin: 20px 0;
+    margin: 10px 0;
 }
 
 .player-card {
-    padding: 20px 15px;
+    padding: 15px 12px;
     border-radius: 15px;
     flex: 1;
     text-align: center;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: 120px;
+    min-height: 100px;
 }
 
 .player-card h3 {
@@ -374,19 +374,20 @@ input[type="number"] {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 20px 0;
-    min-height: 100px;
+    margin: 10px 0;
+    min-height: 140px;
 }
 
+
 .die {
-    width: 55px;
-    height: 55px;
+    width: 45px;
+    height: 45px;
     background: white;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
+    font-size: 1.6rem;
     font-weight: bold;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     opacity: 0;
@@ -395,9 +396,9 @@ input[type="number"] {
 
 @media (min-width: 600px) {
     .die {
-        width: 65px;
-        height: 65px;
-        font-size: 2.2rem;
+        width: 50px;
+        height: 50px;
+        font-size: 1.8rem;
     }
 }
 
@@ -424,11 +425,11 @@ input[type="number"] {
 }
 
 .vs-separator {
-    font-size: 1.8rem;
-    margin: 0 15px;
+    font-size: 1.2rem;
+    margin: 0;
     color: #f39c12;
     font-weight: bold;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    line-height: 1;
 }
 
 .dice-comparison {
@@ -442,18 +443,18 @@ input[type="number"] {
 
 .dice-row {
     display: flex;
-    gap: 20px;
+    flex-direction: column;
+    gap: 12px;
     align-items: center;
     justify-content: center;
-    flex-wrap: nowrap;
 }
 
 .attacker-dice-group, .defender-dice-group {
     display: flex;
     gap: 8px;
     align-items: center;
-    padding: 10px;
-    border-radius: 10px;
+    padding: 6px 10px;
+    border-radius: 8px;
     background: rgba(255,255,255,0.05);
 }
 
@@ -507,7 +508,7 @@ input[type="number"] {
 #battle-screen .result-message {
     font-size: 1.3rem;
     padding: 20px;
-    margin: 20px 0;
+    margin: 10px 0;
     background: rgba(255,255,255,0.1);
     border-radius: 10px;
     display: flex;
@@ -554,7 +555,7 @@ input[type="number"] {
     gap: 15px;
     width: 100%;
     max-width: 320px;
-    margin: 20px auto;
+    margin: 10px auto;
 }
 
 
