@@ -6,11 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Risk Dice Battle - A single-page mobile-optimized implementation of Risk dice battles. Players set up 2-6 players with custom names and colors, then simulate dice battles between attackers and defenders following official Risk game rules.
 
 ## Architecture
-Modern web application structure:
-- `index.html` - Main HTML file with semantic structure
-- `src/styles.css` - All CSS styles for responsive mobile-first design
-- `src/main.js` - JavaScript game logic with ES6 modules
-- `vite.config.js` - Vite configuration for dev server and build
+Progressive Web App with modern structure:
+- `index.html` - Main HTML file with PWA meta tags
+- `src/styles.css` - CSS with military green theme (#4a5d3a)
+- `src/main.js` - Game logic with ES6 modules and service worker registration
+- `public/` - Static assets served directly
+  - `manifest.json` - PWA manifest for installation
+  - `sw.js` - Service worker for offline functionality
+  - `icons/` - App icons (180px, 192px, 512px)
+- `vite.config.js` - Vite configuration with public directory
 - Local storage for persistent player data
 
 ## Key Game Flow
@@ -34,18 +38,24 @@ let gameState = {
 - Navigation updates header icon contextually (⚔️ for attacker, 🛡️ for defender, both for battle)
 - Auto-advance after army selection (no Next buttons)
 
-## Mobile Optimization
-- Viewport meta tag prevents zooming
-- Touch-friendly button sizes (min 80px height on mobile)
-- 2-column grid for army buttons on mobile, 5-column on desktop
-- Fixed header with home/settings buttons
+## Mobile Optimization & PWA Features
+- **PWA Support**: Installable with offline functionality
+- **iOS Optimizations**: Safe area handling for notch, apple-mobile-web-app-capable
+- **Viewport**: Prevents zooming with viewport-fit=cover
+- **Touch UI**: Large buttons (min 80px height on mobile)
+- **Responsive Grid**: 2-column army buttons on mobile, 5-column on desktop
+- **Fixed Header**: Home/settings buttons with icon animations
+- **Visual Feedback**: Card glow effects instead of floating indicators
 
 ## Risk Rules Implementation
 - Attacker rolls max 3 dice (based on armies)
 - Defender rolls max 2 dice (based on armies)
 - Highest dice compared pairwise
 - Defender wins ties
-- Visual feedback shows winners/losers per die
+- Visual feedback:
+  - Individual dice: Green border for winners, red for losers
+  - Player cards: Green glow for round winner, red for loser, yellow for ties
+  - Animated dice rolls with 1.1s delay before results
 
 ## Common Development Tasks
 
@@ -72,7 +82,30 @@ Push to main branch to automatically deploy to GitHub Pages via GitHub Actions.
 
 ### Testing Checklist
 - Test on mobile viewport (375px width)
+- Verify PWA installation on iOS/Android
+- Test offline functionality after installation
 - Verify local storage persistence
 - Check screen transitions and header icon updates
 - Ensure army button pagination works (1-10, 11-20, etc.)
 - Test with different player counts (2-6 players)
+- Verify card glow animations appear correctly
+- Test safe area handling on iPhone with notch
+
+## Important Implementation Details
+
+### Visual Effects Timing
+- Dice roll animation: 500ms
+- Winner highlighting: 600ms delay
+- Results display: 1100ms delay
+- Card glow animation: 1500ms duration
+
+### State Management
+- `clearBattleScreen()` removes all visual effects and resets UI
+- Card glow classes: `card-winner`, `card-loser`, `card-tie`
+- Dice result classes: `winner`, `loser`
+
+### PWA Configuration
+- All paths must be relative (`./`) for Vite compatibility
+- Service worker caches essential files for offline use
+- Icons required: 180x180 (iOS), 192x192, 512x512 (PWA)
+- Theme color: #4a5d3a (military green)

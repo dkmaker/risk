@@ -596,3 +596,50 @@ input[type="number"] {
     border-radius: 10px;
     border: 2px solid #fff;
 }
+
+/* Settings Screen */
+.settings-section {
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 15px;
+}
+
+.settings-section h2 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: #f39c12;
+}
+
+.language-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.language-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 25px;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.language-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+}
+
+.language-btn.active {
+    background: rgba(50, 130, 184, 0.3);
+    border-color: #3282b8;
+    box-shadow: 0 0 20px rgba(50, 130, 184, 0.5);
+}
+

@@ -31,10 +31,35 @@
     </div>
     
     <div class="container">
+        <div id="settings-screen" class="screen">
+            <div class="screen-content">
+                <h1 id="settings-title">Settings</h1>
+                
+                <div class="settings-section">
+                    <h2 id="language-label">Language</h2>
+                    <div class="language-buttons">
+                        <button class="language-btn" onclick="changeLanguage('en')" data-lang="en">
+                            <span id="english-lang-text">English</span>
+                        </button>
+                        <button class="language-btn" onclick="changeLanguage('da')" data-lang="da">
+                            <span id="danish-lang-text">Dansk</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h2 id="players-label">Players</h2>
+                    <button class="btn" onclick="editPlayers()" id="edit-players-btn">Edit Players</button>
+                </div>
+                
+                <button class="btn" onclick="backToGame()" id="back-to-game-btn">Back to Game</button>
+            </div>
+        </div>
+        
         <div id="player-setup" class="screen active">
             <div class="screen-content">
-                <h1>Risk Dice Battle</h1>
-                <p style="margin-bottom: 30px;">Enter player names (leave blank to skip)</p>
+                <h1 id="player-setup-title">Risk Dice Battle</h1>
+                <p style="margin-bottom: 30px;" id="player-setup-subtitle">Enter player names (leave blank to skip)</p>
                 
                 <div class="players-grid">
                 <div class="player-color-card" data-color="#cc0000" style="background: #cc0000">
@@ -57,13 +82,13 @@
                 </div>
             </div>
             
-                <button class="btn" onclick="savePlayersAndStart()">Save & Start</button>
+                <button class="btn" onclick="savePlayersAndStart()" id="save-start-btn">Save & Start</button>
             </div>
         </div>
 
         <div id="attacker-selection" class="screen">
             <div class="screen-content">
-                <h1>Who's Attacking?</h1>
+                <h1 id="who-attacking">Who's Attacking?</h1>
                 <div class="player-selection" id="player-selection-list">
                     <!-- Players will be dynamically added here -->
                 </div>
@@ -72,7 +97,7 @@
 
         <div id="defender-selection" class="screen">
             <div class="screen-content">
-                <h1>Who's Defending?</h1>
+                <h1 id="who-defending">Who's Defending?</h1>
                 <div class="player-selection" id="defender-selection-list">
                     <!-- Players will be dynamically added here -->
                 </div>
@@ -83,7 +108,7 @@
             <div class="screen-content">
                 <h1><span id="attacking-player-name">Attacker</span></h1>
                 <div class="army-selector">
-                <label>Number of armies to attack with</label>
+                <label id="attacker-army-label">Number of armies to attack with</label>
                 <div class="army-buttons" id="attacker-army-buttons">
                     <button class="army-btn" onclick="selectAttackerArmy(1)">1</button>
                     <button class="army-btn" onclick="selectAttackerArmy(2)">2</button>
@@ -104,7 +129,7 @@
             <div class="screen-content">
                 <h1><span id="defending-player-name">Defender</span></h1>
                 <div class="army-selector">
-                <label>Number of armies in territory</label>
+                <label id="defender-army-label">Number of armies in territory</label>
                 <div class="army-buttons" id="defender-army-buttons">
                     <button class="army-btn" onclick="selectDefenderArmy(1)">1</button>
                     <button class="army-btn" onclick="selectDefenderArmy(2)">2</button>
@@ -123,7 +148,7 @@
 
         <div id="battle-screen" class="screen">
             <div class="screen-content">
-                <h1>Battle!</h1>
+                <h1 id="battle-title">Battle!</h1>
             <div class="player-info">
                 <div class="player-card" id="attacker-card">
                     <h3>Attacker</h3>

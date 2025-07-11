@@ -1,3 +1,5 @@
+import { t, getCurrentLanguage, setLanguage } from './translations.js';
+
 let players = [];
 
 let gameState = {
@@ -52,7 +54,7 @@ function savePlayersAndStart() {
     });
     
     if (players.length < 2) {
-        alert('Please enter at least 2 player names!');
+        alert(t('enterAtLeastTwoPlayers'));
         return;
     }
     
@@ -91,6 +93,15 @@ function updatePlayerSelection() {
 // Show settings screen
 function showSettings() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('settings-screen').classList.add('active');
+    updateHeaderIcon('⚙️');
+    updateLanguageButtons();
+    updateUILanguage();
+}
+
+// Edit players - go to player setup screen
+function editPlayers() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('player-setup').classList.add('active');
     updateHeaderIcon('🎲');
     
@@ -102,6 +113,18 @@ function showSettings() {
                 input.value = player.name;
             }
         });
+    }
+}
+
+// Back to game
+function backToGame() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    if (players.length >= 2) {
+        document.getElementById('attacker-selection').classList.add('active');
+        updateHeaderIcon('⚔️');
+    } else {
+        document.getElementById('player-setup').classList.add('active');
+        updateHeaderIcon('🎲');
     }
 }
 
@@ -350,12 +373,12 @@ function updateDefenderButtons() {
 
 function nextToDefender() {
     if (gameState.attacker.armies === 0) {
-        alert('Please select the number of armies!');
+        alert(t('selectNumberOfArmies'));
         return;
     }
 
     if (gameState.attacker.armies < 1) {
-        alert('Attacker must select at least 1 army to attack with!');
+        alert(t('attackerMustHaveArmy'));
         return;
     }
 
@@ -372,12 +395,12 @@ function nextToDefender() {
 
 function startBattle() {
     if (gameState.defender.armies === 0) {
-        alert('Please select the number of armies!');
+        alert(t('selectNumberOfArmies'));
         return;
     }
 
     if (gameState.defender.armies < 1) {
-        alert('Defender must have at least 1 army!');
+        alert(t('defenderMustHaveArmy'));
         return;
     }
 
@@ -409,16 +432,16 @@ function updateBattleDisplay() {
     if (gameState.attacker.armies < 1 || gameState.defender.armies === 0) {
         let message = '';
         if (gameState.defender.armies === 0) {
-            message = `<strong>Victory!</strong> ${gameState.attacker.name} has conquered the territory!`;
+            message = `<strong>${t('victory')}</strong> ${gameState.attacker.name} ${t('hasConquered')}`;
         } else {
-            message = `<strong>Battle Over!</strong> ${gameState.attacker.name} has no more armies to attack with!`;
+            message = `<strong>${t('battleOver')}</strong> ${gameState.attacker.name} ${t('noMoreArmies')}`;
         }
         document.getElementById('result-message').innerHTML = message;
         document.getElementById('roll-btn').style.display = 'none';
         
         // Change withdraw button to "New Battle"
         const withdrawBtn = document.getElementById('withdraw-btn');
-        withdrawBtn.textContent = 'New Battle';
+        withdrawBtn.textContent = t('newBattle');
         withdrawBtn.className = 'btn'; // Reset to just primary button class
     }
 }
@@ -501,13 +524,15 @@ function rollDice() {
         resultElement.classList.remove('attacker-wins', 'defender-wins', 'both-lose');
         
         if (attackerLosses > 0 && defenderLosses > 0) {
-            resultText = `Both lose armies!<br>Attacker: ${attackerLosses}, Defender: ${defenderLosses}`;
+            resultText = `${t('bothLoseArmies')}<br>${t('attacker')}: ${attackerLosses}, ${t('defender')}: ${defenderLosses}`;
             resultElement.classList.add('both-lose');
         } else if (attackerLosses > 0) {
-            resultText = `${gameState.defender.name} wins this round!<br>${gameState.attacker.name} loses ${attackerLosses} ${attackerLosses === 1 ? 'army' : 'armies'}`;
+            const armyText = attackerLosses === 1 ? t('army') : t('armies');
+            resultText = `${gameState.defender.name} ${t('winsThisRound')}<br>${gameState.attacker.name} ${t('loses')} ${attackerLosses} ${armyText}`;
             resultElement.classList.add('defender-wins');
         } else if (defenderLosses > 0) {
-            resultText = `${gameState.attacker.name} wins this round!<br>${gameState.defender.name} loses ${defenderLosses} ${defenderLosses === 1 ? 'army' : 'armies'}`;
+            const armyText = defenderLosses === 1 ? t('army') : t('armies');
+            resultText = `${gameState.attacker.name} ${t('winsThisRound')}<br>${gameState.defender.name} ${t('loses')} ${defenderLosses} ${armyText}`;
             resultElement.classList.add('attacker-wins');
         }
 
@@ -601,7 +626,7 @@ function withdraw() {
         resetToHome();
     } else {
         // Confirm withdrawal during active battle
-        if (confirm('Are you sure you want to withdraw from battle?')) {
+        if (confirm(t('confirmWithdraw'))) {
             resetToHome();
         }
     }
@@ -614,7 +639,7 @@ function goHome() {
     const inSetup = currentScreen.id === 'setup-attacker' || currentScreen.id === 'setup-defender';
     
     if (inBattle || inSetup) {
-        if (confirm('Are you sure you want to leave the current game?')) {
+        if (confirm(t('confirmLeaveGame'))) {
             resetToHome();
         }
     } else {
@@ -625,7 +650,7 @@ function goHome() {
 function clearBattleScreen() {
     // Clear battle display
     document.getElementById('dice-display').innerHTML = '';
-    document.getElementById('result-message').innerHTML = 'Click Roll to start battle!';
+    document.getElementById('result-message').innerHTML = t('clickToStartBattle');
     document.getElementById('result-message').classList.remove('attacker-wins', 'defender-wins', 'both-lose');
     
     // Clear glow effects from player cards
@@ -645,7 +670,7 @@ function clearBattleScreen() {
     
     // Reset withdraw button - ensure clean state
     const withdrawBtn = document.getElementById('withdraw-btn');
-    withdrawBtn.textContent = 'Withdraw';
+    withdrawBtn.textContent = t('withdraw');
     withdrawBtn.className = 'btn btn-secondary'; // Reset all classes
 }
 
@@ -685,10 +710,83 @@ window.rollDice = rollDice;
 window.withdraw = withdraw;
 window.goHome = goHome;
 window.showSettings = showSettings;
+window.changeLanguage = changeLanguage;
+window.editPlayers = editPlayers;
+window.backToGame = backToGame;
+
+// Change language
+function changeLanguage(lang) {
+    setLanguage(lang);
+    updateLanguageButtons();
+    updateUILanguage();
+}
+
+// Update language button states
+function updateLanguageButtons() {
+    const currentLang = getCurrentLanguage();
+    document.querySelectorAll('.language-btn').forEach(btn => {
+        if (btn.dataset.lang === currentLang) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+// Update all UI text to current language
+function updateUILanguage() {
+    // Settings screen
+    document.getElementById('settings-title').textContent = t('settingsTitle');
+    document.getElementById('language-label').textContent = t('languageLabel');
+    document.getElementById('players-label').textContent = t('playersLabel');
+    document.getElementById('edit-players-btn').textContent = t('playersLabel');
+    document.getElementById('back-to-game-btn').textContent = t('backToGame');
+    
+    // Update language button texts
+    document.getElementById('english-lang-text').textContent = t('englishLanguage');
+    document.getElementById('danish-lang-text').textContent = t('danishLanguage');
+    
+    // Player setup
+    document.getElementById('player-setup-title').textContent = t('playerSetupTitle');
+    document.getElementById('player-setup-subtitle').textContent = t('playerSetupSubtitle');
+    document.getElementById('save-start-btn').textContent = t('saveAndStart');
+    
+    // Update placeholders
+    document.querySelector('[data-player="red"]').placeholder = t('redPlayer');
+    document.querySelector('[data-player="blue"]').placeholder = t('bluePlayer');
+    document.querySelector('[data-player="green"]').placeholder = t('greenPlayer');
+    document.querySelector('[data-player="yellow"]').placeholder = t('yellowPlayer');
+    document.querySelector('[data-player="black"]').placeholder = t('blackPlayer');
+    document.querySelector('[data-player="purple"]').placeholder = t('purplePlayer');
+    
+    // Battle screens
+    document.getElementById('who-attacking').textContent = t('whoIsAttacking');
+    document.getElementById('who-defending').textContent = t('whoIsDefending');
+    document.getElementById('attacker-army-label').textContent = t('numberOfArmiesAttack');
+    document.getElementById('defender-army-label').textContent = t('numberOfArmiesDefend');
+    document.getElementById('battle-title').textContent = t('battle');
+    
+    // Battle buttons
+    document.getElementById('roll-btn').textContent = t('rollDice');
+    const withdrawBtn = document.getElementById('withdraw-btn');
+    if (withdrawBtn.textContent === 'New Battle' || withdrawBtn.textContent === 'Ny Kamp') {
+        withdrawBtn.textContent = t('newBattle');
+    } else {
+        withdrawBtn.textContent = t('withdraw');
+    }
+    
+    // Result message
+    const resultMessage = document.getElementById('result-message');
+    if (resultMessage.textContent === 'Click Roll to start battle!' || 
+        resultMessage.textContent === 'Klik Kast for at starte kamp!') {
+        resultMessage.textContent = t('clickToStartBattle');
+    }
+}
 
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', function() {
     loadPlayers();
+    updateUILanguage();
 });
 
 // Register service worker for PWA
