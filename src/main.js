@@ -443,6 +443,7 @@ function updateBattleDisplay() {
         const withdrawBtn = document.getElementById('withdraw-btn');
         withdrawBtn.textContent = t('newBattle');
         withdrawBtn.className = 'btn'; // Reset to just primary button class
+        withdrawBtn.dataset.mode = 'newBattle';
     }
 }
 
@@ -619,7 +620,7 @@ function displayDiceComparison(attackerRolls, defenderRolls) {
 
 function withdraw() {
     const withdrawBtn = document.getElementById('withdraw-btn');
-    const isNewBattle = withdrawBtn.textContent === 'New Battle';
+    const isNewBattle = withdrawBtn.dataset.mode === 'newBattle';
     
     if (isNewBattle) {
         // Direct return to home for new battle
@@ -672,6 +673,7 @@ function clearBattleScreen() {
     const withdrawBtn = document.getElementById('withdraw-btn');
     withdrawBtn.textContent = t('withdraw');
     withdrawBtn.className = 'btn btn-secondary'; // Reset all classes
+    withdrawBtn.dataset.mode = 'withdraw';
 }
 
 function resetToHome() {
@@ -769,7 +771,7 @@ function updateUILanguage() {
     // Battle buttons
     document.getElementById('roll-btn').textContent = t('rollDice');
     const withdrawBtn = document.getElementById('withdraw-btn');
-    if (withdrawBtn.textContent === 'New Battle' || withdrawBtn.textContent === 'Ny Kamp') {
+    if (withdrawBtn.dataset.mode === 'newBattle') {
         withdrawBtn.textContent = t('newBattle');
     } else {
         withdrawBtn.textContent = t('withdraw');
