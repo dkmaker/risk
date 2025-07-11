@@ -35,7 +35,6 @@ export type {
   HeaderProps,
   ScreenProps,
   DiceProps,
-  AnimationTiming,
   UIState,
   Theme,
 } from "./ui";
@@ -46,20 +45,6 @@ export type {
   ServiceConfig,
   AppConfig,
 } from "./services";
-
-// Utility types
-export type {
-  DeepPartial,
-  Optional,
-  Nullable,
-  Maybe,
-  Brand,
-  Timestamp,
-  JSONValue,
-  Predicate,
-  Transformer,
-  RequiredKeys,
-} from "./utils";
 
 // Translation system types
 export type {
@@ -125,19 +110,26 @@ export const isPlayer = (value: unknown): value is Player => {
   return (
     typeof value === "object" &&
     value !== null &&
-    typeof (value as any).name === "string" &&
-    typeof (value as any).color === "string" &&
-    typeof (value as any).colorName === "string"
+    "name" in value &&
+    "color" in value &&
+    "colorName" in value &&
+    typeof (value as { name: unknown }).name === "string" &&
+    typeof (value as { color: unknown }).color === "string" &&
+    typeof (value as { colorName: unknown }).colorName === "string"
   );
 };
 
 export const isBattlePlayer = (value: unknown): value is BattlePlayer => {
   return (
     isPlayer(value) &&
-    typeof (value as any).playerIndex === "number" &&
-    typeof (value as any).armies === "number" &&
-    typeof (value as any).initialArmies === "number" &&
-    typeof (value as any).page === "number"
+    "playerIndex" in value &&
+    "armies" in value &&
+    "initialArmies" in value &&
+    "page" in value &&
+    typeof (value as { playerIndex: unknown }).playerIndex === "number" &&
+    typeof (value as { armies: unknown }).armies === "number" &&
+    typeof (value as { initialArmies: unknown }).initialArmies === "number" &&
+    typeof (value as { page: unknown }).page === "number"
   );
 };
 
@@ -145,9 +137,15 @@ export const isDiceRoll = (value: unknown): value is DiceRoll => {
   return (
     typeof value === "object" &&
     value !== null &&
-    Array.isArray((value as any).values) &&
-    (value as any).values.every((v: unknown) => typeof v === "number" && v >= 1 && v <= 6) &&
-    typeof (value as any).count === "number" &&
-    ((value as any).type === "attacker" || (value as any).type === "defender")
+    "values" in value &&
+    "count" in value &&
+    "type" in value &&
+    Array.isArray((value as { values: unknown }).values) &&
+    (value as { values: unknown[] }).values.every(
+      (v: unknown) => typeof v === "number" && v >= 1 && v <= 6
+    ) &&
+    typeof (value as { count: unknown }).count === "number" &&
+    ((value as { type: unknown }).type === "attacker" ||
+      (value as { type: unknown }).type === "defender")
   );
 };

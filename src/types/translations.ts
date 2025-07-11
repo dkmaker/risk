@@ -290,7 +290,7 @@ export interface TranslationInterpolator {
   /** Interpolate translation with parameters */
   interpolate(template: string, params: TranslationParams): string;
   /** Register custom interpolation function */
-  registerFunction(name: string, fn: (value: any) => string): void;
+  registerFunction(name: string, fn: (value: unknown) => string): void;
   /** Get available functions */
   getFunctions(): string[];
 }
@@ -493,7 +493,7 @@ export interface TranslationEventData {
   /** Event timestamp */
   timestamp: number;
   /** Event data */
-  data: any;
+  data: unknown;
   /** Event source */
   source?: string;
 }
@@ -568,7 +568,7 @@ export const SUPPORTED_LANGUAGES: Record<Language, TranslationMetadata> = {
 export type ExtractTranslationKeys<T> = T extends Record<string, infer U>
   ? U extends string
     ? keyof T
-    : U extends Record<string, any>
+    : U extends Record<string, unknown>
       ? `${keyof T & string}.${ExtractTranslationKeys<U> & string}`
       : never
   : never;
@@ -580,7 +580,7 @@ export type ExtractTranslationValue<T, K extends string> = K extends keyof T
   ? T[K]
   : K extends `${infer P}.${infer S}`
     ? P extends keyof T
-      ? T[P] extends Record<string, any>
+      ? T[P] extends Record<string, unknown>
         ? ExtractTranslationValue<T[P], S>
         : never
       : never

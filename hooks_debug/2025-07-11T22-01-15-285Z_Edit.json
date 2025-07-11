@@ -1,0 +1,119 @@
+{
+  "timestamp": "2025-07-11T22:01:15.285Z",
+  "input": {
+    "session_id": "c526607e-bb31-48b1-9b3e-ca366485238b",
+    "transcript_path": "/home/cp/.claude/projects/-home-cp-code-dkmaker-risk-dice/c526607e-bb31-48b1-9b3e-ca366485238b.jsonl",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Edit",
+    "tool_input": {
+      "file_path": "/home/cp/code/dkmaker/risk-dice/src/styles/base/variables.css",
+      "old_string": "  /* Text Colors */\n  --color-text: #1f2937;\n  --color-text-light: #6b7280;\n\n  /* Background Colors */\n  --color-background: #f9fafb;\n  --color-surface: #fff;\n  --background-overlay: rgb(255 255 255 / 80%);",
+      "new_string": "  /* Text Colors */\n  --color-text: #fff;\n  --color-text-light: #d1d5db;\n\n  /* Background Colors */\n  --color-background: #1f2937;\n  --color-surface: #374151;\n  --background-overlay: rgb(0 0 0 / 30%);"
+    },
+    "tool_response": {
+      "filePath": "/home/cp/code/dkmaker/risk-dice/src/styles/base/variables.css",
+      "oldString": "  /* Text Colors */\n  --color-text: #1f2937;\n  --color-text-light: #6b7280;\n\n  /* Background Colors */\n  --color-background: #f9fafb;\n  --color-surface: #fff;\n  --background-overlay: rgb(255 255 255 / 80%);",
+      "newString": "  /* Text Colors */\n  --color-text: #fff;\n  --color-text-light: #d1d5db;\n\n  /* Background Colors */\n  --color-background: #1f2937;\n  --color-surface: #374151;\n  --background-overlay: rgb(0 0 0 / 30%);",
+      "originalFile": "/**\n * CSS Custom Properties for Risk Dice Battle\n * Consistent spacing, colors, and design tokens\n */\n\n:root {\n  /* Spacing Scale */\n  --spacing-xs: 0.25rem;\n  --spacing-sm: 0.5rem;\n  --spacing-md: 0.75rem;\n  --spacing-lg: 1rem;\n  --spacing-xl: 1.25rem;\n  --spacing-2xl: 1.5rem;\n  --spacing-3xl: 2rem;\n\n  /* Layout */\n  --header-height: 64px;\n\n  /* Border Radius */\n  --border-radius-sm: 0.5rem;\n  --border-radius-md: 0.75rem;\n  --border-radius-lg: 1rem;\n\n  /* Transitions */\n  --transition-fast: 0.15s ease;\n  --transition-normal: 0.2s ease;\n  --transition-slow: 0.3s ease;\n\n  /* Colors */\n  --color-primary: #4a5d3a;\n  --color-primary-light: #6b8c5a;\n  --color-primary-alpha: rgb(74 93 58 / 10%);\n  --color-success: #10b981;\n  --color-error: #ef4444;\n  --color-warning: #f59e0b;\n\n  /* Text Colors */\n  --color-text: #1f2937;\n  --color-text-light: #6b7280;\n\n  /* Background Colors */\n  --color-background: #f9fafb;\n  --color-surface: #fff;\n  --background-overlay: rgb(255 255 255 / 80%);\n\n  /* Dice Colors */\n  --dice-winner-border: #10b981;\n  --dice-winner-bg: #f0fdf4;\n  --dice-winner-text: #059669;\n  --dice-loser-border: #ef4444;\n  --dice-loser-bg: #fef2f2;\n  --dice-loser-text: #dc2626;\n\n  /* Player Colors */\n  --player-red: #e74c3c;\n  --player-blue: #3498db;\n  --player-green: #27ae60;\n  --player-yellow: #f1c40f;\n  --player-purple: #9b59b6;\n  --player-black: #2c3e50;\n\n  /* Shadows */\n  --shadow-sm: 0 1px 2px rgb(0 0 0 / 5%);\n  --shadow-md: 0 4px 6px rgb(0 0 0 / 10%);\n  --shadow-lg: 0 10px 15px rgb(0 0 0 / 10%);\n  --shadow-xl: 0 20px 25px rgb(0 0 0 / 10%);\n}\n",
+      "structuredPatch": [
+        {
+          "oldStart": 35,
+          "oldLines": 13,
+          "newStart": 35,
+          "newLines": 13,
+          "lines": [
+            "   --color-warning: #f59e0b;",
+            " ",
+            "   /* Text Colors */",
+            "-  --color-text: #1f2937;",
+            "-  --color-text-light: #6b7280;",
+            "+  --color-text: #fff;",
+            "+  --color-text-light: #d1d5db;",
+            " ",
+            "   /* Background Colors */",
+            "-  --color-background: #f9fafb;",
+            "-  --color-surface: #fff;",
+            "-  --background-overlay: rgb(255 255 255 / 80%);",
+            "+  --color-background: #1f2937;",
+            "+  --color-surface: #374151;",
+            "+  --background-overlay: rgb(0 0 0 / 30%);",
+            " ",
+            "   /* Dice Colors */",
+            "   --dice-winner-border: #10b981;"
+          ]
+        }
+      ],
+      "userModified": false,
+      "replaceAll": false
+    }
+  },
+  "startTime": "2025-07-11T22:01:11.276Z",
+  "steps": [
+    {
+      "step": "initial_check",
+      "lintResult": {
+        "success": true
+      },
+      "tsResult": {
+        "success": true
+      },
+      "cssResult": {
+        "success": true,
+        "output": "",
+        "json": []
+      },
+      "hadIssues": false
+    },
+    {
+      "step": "format",
+      "jsResult": {
+        "success": true
+      },
+      "cssResult": {
+        "success": true,
+        "output": "",
+        "json": []
+      }
+    },
+    {
+      "step": "lint_pass1",
+      "result": {
+        "success": true
+      }
+    },
+    {
+      "step": "typescript_check",
+      "result": {
+        "success": true
+      }
+    },
+    {
+      "step": "final_lint_check",
+      "jsResult": {
+        "success": true
+      },
+      "cssResult": {
+        "success": true,
+        "output": "",
+        "json": []
+      }
+    }
+  ],
+  "errors": [],
+  "finalResult": "Success - no issues found",
+  "modifiedFiles": {
+    "jsFiles": [],
+    "cssFiles": [
+      "/home/cp/code/dkmaker/risk-dice/src/styles/base/variables.css"
+    ],
+    "allFiles": [
+      "/home/cp/code/dkmaker/risk-dice/src/styles/base/variables.css"
+    ]
+  },
+  "parsedIssues": {
+    "biomeIssues": [],
+    "tsIssues": [],
+    "cssIssues": [],
+    "aiPrompts": []
+  }
+}

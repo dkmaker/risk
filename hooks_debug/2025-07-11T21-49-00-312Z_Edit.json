@@ -1,0 +1,180 @@
+{
+  "timestamp": "2025-07-11T21:49:00.312Z",
+  "input": {
+    "session_id": "c526607e-bb31-48b1-9b3e-ca366485238b",
+    "transcript_path": "/home/cp/.claude/projects/-home-cp-code-dkmaker-risk-dice/c526607e-bb31-48b1-9b3e-ca366485238b.jsonl",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Edit",
+    "tool_input": {
+      "file_path": "/home/cp/code/dkmaker/risk-dice/src/components/BattleScreen.tsx",
+      "old_string": "// Helper functions to reduce complexity\nfunction generateRandomDice(count: number): DiceValue[] {\n  return Array.from({ length: count }, () => ({\n    value: Math.floor(Math.random() * 6) + 1,\n    isWinner: false,\n  }));\n}",
+      "new_string": "// Helper functions to reduce complexity\nfunction generateRandomDice(count: number): DiceValue[] {\n  return Array.from({ length: count }, () => ({\n    value: Math.floor(Math.random() * 6) + 1,\n  }));\n}"
+    },
+    "tool_response": {
+      "filePath": "/home/cp/code/dkmaker/risk-dice/src/components/BattleScreen.tsx",
+      "oldString": "// Helper functions to reduce complexity\nfunction generateRandomDice(count: number): DiceValue[] {\n  return Array.from({ length: count }, () => ({\n    value: Math.floor(Math.random() * 6) + 1,\n    isWinner: false,\n  }));\n}",
+      "newString": "// Helper functions to reduce complexity\nfunction generateRandomDice(count: number): DiceValue[] {\n  return Array.from({ length: count }, () => ({\n    value: Math.floor(Math.random() * 6) + 1,\n  }));\n}",
+      "originalFile": "/**\n * BattleScreen - Main battle interface with dice rolling\n * Implements the complete Risk battle system with visual feedback\n */\n\nimport { useEffect, useState } from \"preact/hooks\";\nimport { useBattleLogic } from \"../hooks/useBattleLogic\";\nimport { useGameState } from \"../hooks/useGameState\";\nimport { useTranslation } from \"../hooks/useTranslation\";\nimport type { DiceComparisonResult } from \"../services/BattleService\";\nimport Button from \"./shared/Button\";\n\ninterface PlayerCardProps {\n  playerName: string;\n  playerColor: string;\n  armies: number;\n  initialArmies: number;\n}\n\ninterface DiceValue {\n  value: number;\n}\n\ninterface DiceState {\n  attackerDice: DiceValue[];\n  defenderDice: DiceValue[];\n}\n\nfunction PlayerCard({ playerName, playerColor, armies, initialArmies }: PlayerCardProps) {\n  return (\n    <div className=\"player-card\" style={{ backgroundColor: playerColor }}>\n      <div className=\"player-name\">{playerName}</div>\n      <div className=\"army-count\">\n        <span className=\"current-armies\">{armies}</span>\n        <span className=\"total-armies\">/ {initialArmies}</span>\n      </div>\n    </div>\n  );\n}\n\n// Helper functions to reduce complexity\nfunction generateRandomDice(count: number): DiceValue[] {\n  return Array.from({ length: count }, () => ({\n    value: Math.floor(Math.random() * 6) + 1,\n    isWinner: false,\n  }));\n}\n\nfunction generateDefaultDiceState(): DiceState {\n  return {\n    attackerDice: generateRandomDice(3),\n    defenderDice: generateRandomDice(2),\n  };\n}\n\nexport default function BattleScreen() {\n  const { t } = useTranslation();\n  const {\n    attacker,\n    defender,\n    updateArmyCounts,\n    isBattleOver,\n    getBattleWinner,\n    withdraw,\n    startNewBattle,\n    goToPlayerSetup,\n  } = useGameState();\n\n  const { rollDice, resetBattle, formatResult, getDiceDisplay, canRoll } = useBattleLogic();\n\n  const [resultMessage, setResultMessage] = useState<string>(\"\");\n  const [showWithdrawConfirmation, setShowWithdrawConfirmation] = useState(false);\n  const [defaultDice, setDefaultDice] = useState<DiceState | null>(null);\n\n  // Reset battle state when component mounts and show initial dice\n  // biome-ignore lint/correctness/useExhaustiveDependencies: We only want this to run once on mount\n  useEffect(() => {\n    resetBattle();\n    setResultMessage(\"Touch dice to roll!\");\n    // Generate initial dice state only once on mount\n    if (!defaultDice) {\n      setDefaultDice(generateDefaultDiceState());\n    }\n  }, []); // Empty dependency array ensures this only runs once on mount\n\n  if (!(attacker && defender)) {\n    return (\n      <div className=\"screen-layout\">\n        <div className=\"screen-header\">\n          <h1>{t(\"battleError\")}</h1>\n        </div>\n        <div className=\"screen-content\">\n          <p>{t(\"battleSetupError\")}</p>\n        </div>\n        <div className=\"screen-footer\">\n          <Button onClick={goToPlayerSetup}>{t(\"backToSetup\")}</Button>\n        </div>\n      </div>\n    );\n  }\n\n  const handleBattleResult = (result: DiceComparisonResult) => {\n    // Update army counts\n    updateArmyCounts(result.attackerLosses, result.defenderLosses);\n\n    // Set result message\n    const message = formatResult(result, attacker?.name ?? \"\", defender?.name ?? \"\");\n    setResultMessage(message);\n\n    // Determine round winner for card glow effects\n\n    // Check if battle is over\n    setTimeout(() => {\n      if (!isBattleOver()) {\n        return;\n      }\n\n      const winner = getBattleWinner();\n      const winnerName = winner === \"attacker\" ? (attacker?.name ?? \"\") : (defender?.name ?? \"\");\n      const messageKey = winner === \"attacker\" ? \"attackerWins\" : \"defenderWins\";\n      setResultMessage(t(messageKey).replace(\"{{name}}\", winnerName));\n    }, 100);\n  };\n\n  const handleRollDice = async () => {\n    if (!(canRollDice && attacker && defender)) {\n      return;\n    }\n\n    try {\n      setResultMessage(t(\"rolling\"));\n\n      await rollDice(attacker.armies, defender.armies, handleBattleResult);\n    } catch (error) {\n      console.error(\"Battle error:\", error);\n      setResultMessage(t(\"battleError\"));\n    }\n  };\n\n  const handleWithdraw = () => {\n    if (showWithdrawConfirmation) {\n      withdraw();\n      setShowWithdrawConfirmation(false);\n      return;\n    }\n\n    setShowWithdrawConfirmation(true);\n    setTimeout(() => setShowWithdrawConfirmation(false), 3000);\n  };\n\n  const handleNewBattle = () => startNewBattle();\n\n  const diceDisplay = getDiceDisplay();\n  const battleIsOver = isBattleOver();\n  const canRollDice = canRoll() && !battleIsOver;\n  const currentDiceDisplay = diceDisplay || defaultDice;\n\n  return (\n    <div className=\"screen-layout battle-screen\">\n      <div className=\"player-info\">\n        <PlayerCard\n          playerName={attacker.name}\n          playerColor={attacker.color}\n          armies={attacker.armies}\n          initialArmies={attacker.initialArmies}\n        />\n\n        <PlayerCard\n          playerName={defender.name}\n          playerColor={defender.color}\n          armies={defender.armies}\n          initialArmies={defender.initialArmies}\n        />\n      </div>\n\n      {/* Dice Display */}\n      <button\n        className=\"dice-container\"\n        onClick={canRollDice ? handleRollDice : undefined}\n        style={{ cursor: canRollDice ? \"pointer\" : \"default\" }}\n        disabled={!canRollDice}\n        aria-label={canRollDice ? t(\"rollDice\") : t(\"battleOver\")}\n        type=\"button\"\n      >\n        {currentDiceDisplay && (\n          <div className=\"dice-display\">\n            <div className=\"dice-row\">\n              {currentDiceDisplay.attackerDice.map((die, index) => (\n                <div\n                  key={`attacker-die-${index}-${die.value}`}\n                  className=\"die attacker-die\"\n                  style={{\n                    backgroundColor: \"#e74c3c\",\n                    color: \"white\",\n                    borderColor: \"#c0392b\",\n                  }}\n                >\n                  {die.value}\n                </div>\n              ))}\n            </div>\n            <div className=\"vs-divider\">VS</div>\n            <div className=\"dice-row\">\n              {currentDiceDisplay.defenderDice.map((die, index) => (\n                <div\n                  key={`defender-die-${index}-${die.value}`}\n                  className=\"die defender-die\"\n                  style={{\n                    backgroundColor: \"#3498db\",\n                    color: \"white\",\n                    borderColor: \"#2980b9\",\n                  }}\n                >\n                  {die.value}\n                </div>\n              ))}\n            </div>\n          </div>\n        )}\n      </button>\n\n      {/* Controls Section */}\n      <div className=\"battle-controls\">\n        {/* Result Message */}\n        <div className=\"result-message\">\n          <p>{resultMessage}</p>\n        </div>\n\n        {/* Action Buttons */}\n        <div className=\"button-container\">\n          {battleIsOver ? (\n            <Button onClick={handleNewBattle} variant=\"primary\" size=\"large\">\n              {t(\"newBattle\")}\n            </Button>\n          ) : (\n            <Button\n              onClick={handleWithdraw}\n              variant={showWithdrawConfirmation ? \"danger\" : \"secondary\"}\n              size=\"large\"\n            >\n              {showWithdrawConfirmation ? t(\"confirmWithdraw\") : t(\"withdraw\")}\n            </Button>\n          )}\n        </div>\n      </div>\n    </div>\n  );\n}\n",
+      "structuredPatch": [
+        {
+          "oldStart": 42,
+          "oldLines": 7,
+          "newStart": 42,
+          "newLines": 6,
+          "lines": [
+            " function generateRandomDice(count: number): DiceValue[] {",
+            "   return Array.from({ length: count }, () => ({",
+            "     value: Math.floor(Math.random() * 6) + 1,",
+            "-    isWinner: false,",
+            "   }));",
+            " }",
+            " "
+          ]
+        }
+      ],
+      "userModified": false,
+      "replaceAll": false
+    }
+  },
+  "startTime": "2025-07-11T21:48:55.639Z",
+  "steps": [
+    {
+      "step": "initial_check",
+      "lintResult": {
+        "success": true,
+        "output": "{\"summary\":{\"changed\":0,\"unchanged\":1,\"matches\":0,\"duration\":{\"secs\":0,\"nanos\":14629600},\"errors\":0,\"warnings\":0,\"skipped\":0,\"suggestedFixesSkipped\":0,\"diagnosticsNotPrinted\":0},\"diagnostics\":[],\"command\":\"check\"}\n",
+        "json": {
+          "summary": {
+            "changed": 0,
+            "unchanged": 1,
+            "matches": 0,
+            "duration": {
+              "secs": 0,
+              "nanos": 14629600
+            },
+            "errors": 0,
+            "warnings": 0,
+            "skipped": 0,
+            "suggestedFixesSkipped": 0,
+            "diagnosticsNotPrinted": 0
+          },
+          "diagnostics": [],
+          "command": "check"
+        }
+      },
+      "tsResult": {
+        "success": true,
+        "output": ""
+      },
+      "cssResult": {
+        "success": true
+      },
+      "hadIssues": false
+    },
+    {
+      "step": "format",
+      "jsResult": {
+        "success": true,
+        "output": "{\"summary\":{\"changed\":0,\"unchanged\":1,\"matches\":0,\"duration\":{\"secs\":0,\"nanos\":3322274},\"errors\":0,\"warnings\":0,\"skipped\":0,\"suggestedFixesSkipped\":0,\"diagnosticsNotPrinted\":0},\"diagnostics\":[],\"command\":\"format\"}\n",
+        "json": {
+          "summary": {
+            "changed": 0,
+            "unchanged": 1,
+            "matches": 0,
+            "duration": {
+              "secs": 0,
+              "nanos": 3322274
+            },
+            "errors": 0,
+            "warnings": 0,
+            "skipped": 0,
+            "suggestedFixesSkipped": 0,
+            "diagnosticsNotPrinted": 0
+          },
+          "diagnostics": [],
+          "command": "format"
+        }
+      },
+      "cssResult": {
+        "success": true
+      }
+    },
+    {
+      "step": "lint_pass1",
+      "result": {
+        "success": true,
+        "output": "{\"summary\":{\"changed\":0,\"unchanged\":1,\"matches\":0,\"duration\":{\"secs\":0,\"nanos\":14039846},\"errors\":0,\"warnings\":0,\"skipped\":0,\"suggestedFixesSkipped\":0,\"diagnosticsNotPrinted\":0},\"diagnostics\":[],\"command\":\"check\"}\n",
+        "json": {
+          "summary": {
+            "changed": 0,
+            "unchanged": 1,
+            "matches": 0,
+            "duration": {
+              "secs": 0,
+              "nanos": 14039846
+            },
+            "errors": 0,
+            "warnings": 0,
+            "skipped": 0,
+            "suggestedFixesSkipped": 0,
+            "diagnosticsNotPrinted": 0
+          },
+          "diagnostics": [],
+          "command": "check"
+        }
+      }
+    },
+    {
+      "step": "typescript_check",
+      "result": {
+        "success": true,
+        "output": ""
+      }
+    },
+    {
+      "step": "final_lint_check",
+      "jsResult": {
+        "success": true,
+        "output": "{\"summary\":{\"changed\":0,\"unchanged\":1,\"matches\":0,\"duration\":{\"secs\":0,\"nanos\":11850419},\"errors\":0,\"warnings\":0,\"skipped\":0,\"suggestedFixesSkipped\":0,\"diagnosticsNotPrinted\":0},\"diagnostics\":[],\"command\":\"check\"}\n",
+        "json": {
+          "summary": {
+            "changed": 0,
+            "unchanged": 1,
+            "matches": 0,
+            "duration": {
+              "secs": 0,
+              "nanos": 11850419
+            },
+            "errors": 0,
+            "warnings": 0,
+            "skipped": 0,
+            "suggestedFixesSkipped": 0,
+            "diagnosticsNotPrinted": 0
+          },
+          "diagnostics": [],
+          "command": "check"
+        }
+      },
+      "cssResult": {
+        "success": true
+      }
+    }
+  ],
+  "errors": [],
+  "finalResult": "Success - no issues found",
+  "modifiedFiles": {
+    "jsFiles": [
+      "/home/cp/code/dkmaker/risk-dice/src/components/BattleScreen.tsx"
+    ],
+    "cssFiles": [],
+    "allFiles": [
+      "/home/cp/code/dkmaker/risk-dice/src/components/BattleScreen.tsx"
+    ]
+  },
+  "parsedIssues": {
+    "biomeIssues": [],
+    "tsIssues": [],
+    "cssIssues": [],
+    "aiPrompts": []
+  }
+}

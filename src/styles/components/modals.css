@@ -8,50 +8,47 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  z-index: 1000;
+  width: calc(100% - 2rem);
+  max-width: 32rem;
+  max-height: 90vh;
   padding: 0;
+  overflow-y: auto;
   border: none;
   border-radius: var(--border-radius-lg);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-  max-width: 32rem;
-  width: calc(100% - 2rem);
-  max-height: 90vh;
-  overflow-y: auto;
-  z-index: 1000;
+  box-shadow: 0 20px 40px rgb(0 0 0 / 40%);
+  transform: translate(-50%, -50%);
 }
 
 .modal-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgb(0 0 0 / 50%);
   backdrop-filter: blur(4px);
 }
 
 /* Legacy modal overlay for backward compatibility */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
   padding: var(--spacing-lg);
+  background: rgb(0 0 0 / 50%);
   backdrop-filter: blur(4px);
 }
 
 .modal-content {
-  background: var(--color-surface);
-  border-radius: var(--border-radius-lg);
-  max-width: 32rem;
   width: 100%;
+  max-width: 32rem;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  background: var(--color-surface);
+  border: 1px solid rgb(107 140 90 / 30%);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 20px 40px rgb(0 0 0 / 40%);
   transform: scale(1);
   transition: transform var(--transition-normal);
-  border: 1px solid rgba(107, 140, 90, 0.3);
 }
 
 .modal-header {
@@ -59,7 +56,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-2xl) var(--spacing-2xl) var(--spacing-lg);
-  border-bottom: 1px solid rgba(107, 140, 90, 0.3);
+  border-bottom: 1px solid rgb(107 140 90 / 30%);
 }
 
 .modal-header h2 {
@@ -70,19 +67,19 @@
 }
 
 .modal-close {
+  padding: var(--spacing-sm);
+  font-size: 1.5rem;
+  color: var(--color-text-light);
+  cursor: pointer;
   background: none;
   border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--color-text-light);
-  padding: var(--spacing-sm);
   border-radius: var(--border-radius-sm);
   transition: all var(--transition-normal);
 }
 
 .modal-close:hover {
-  background: rgba(107, 140, 90, 0.2);
   color: var(--color-text);
+  background: rgb(107 140 90 / 20%);
 }
 
 .modal-body {
@@ -90,11 +87,11 @@
 }
 
 .modal-footer {
-  padding: var(--spacing-lg) var(--spacing-2xl) var(--spacing-2xl);
-  border-top: 1px solid rgba(107, 140, 90, 0.3);
   display: flex;
-  justify-content: flex-end;
   gap: var(--spacing-lg);
+  justify-content: flex-end;
+  padding: var(--spacing-lg) var(--spacing-2xl) var(--spacing-2xl);
+  border-top: 1px solid rgb(107 140 90 / 30%);
 }
 
 .settings-section {
@@ -120,57 +117,57 @@
 
 .theme-option {
   display: flex;
-  align-items: center;
   gap: var(--spacing-lg);
+  align-items: center;
   padding: var(--spacing-lg);
+  text-align: left;
+  cursor: pointer;
+  background: #fff;
   border: 2px solid #e5e7eb;
   border-radius: var(--border-radius-md);
-  background: white;
-  cursor: pointer;
   transition: all var(--transition-normal);
-  text-align: left;
 }
 
 .theme-option:hover {
-  border-color: var(--color-primary);
   background: #f8faf8;
+  border-color: var(--color-primary);
 }
 
 .theme-option.active {
-  border-color: var(--color-primary);
   background: #f0f4f0;
-  box-shadow: 0 0 0 3px rgba(74, 93, 58, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(74 93 58 / 10%);
 }
 
 .theme-icon {
-  font-size: 1.5rem;
-  min-width: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 2rem;
+  font-size: 1.5rem;
 }
 
 .theme-name {
+  min-width: 6rem;
   font-weight: 600;
   color: #1f2937;
-  min-width: 6rem;
 }
 
 .theme-description {
-  color: #6b7280;
-  font-size: 0.875rem;
   flex: 1;
+  font-size: 0.875rem;
+  color: #6b7280;
 }
 
 .about-text {
-  color: var(--color-text-light);
   margin: 0 0 var(--spacing-lg) 0;
   line-height: 1.6;
+  color: var(--color-text-light);
 }
 
 .version-info {
-  color: var(--color-text-light);
-  font-size: 0.875rem;
   margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-light);
   opacity: 0.7;
 }

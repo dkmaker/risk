@@ -112,8 +112,6 @@ export interface GameSettings {
   difficulty?: "easy" | "medium" | "hard";
   /** Sound enabled */
   soundEnabled?: boolean;
-  /** Animation speed */
-  animationSpeed?: "slow" | "normal" | "fast";
   /** Auto-save enabled */
   autoSave?: boolean;
   /** Language setting */
@@ -151,15 +149,11 @@ export interface BattleSettings {
   turnTimeLimit?: number;
   /** Allow withdrawals */
   allowWithdrawals?: boolean;
-  /** Show dice animations */
-  showAnimations?: boolean;
 }
 
 export interface DiceConfiguration {
   /** Number of dice sides */
   sides?: number;
-  /** Dice animation duration */
-  animationDuration?: number;
   /** Dice color scheme */
   colorScheme?: string;
   /** Sound effects enabled */
@@ -169,23 +163,10 @@ export interface DiceConfiguration {
 export interface DiceState {
   /** Current dice values */
   values?: number[];
-  /** Dice are rolling */
-  isRolling?: boolean;
   /** Roll count */
   rollCount?: number;
   /** Last roll timestamp */
   lastRoll?: number;
-}
-
-export interface AnimationState {
-  /** Animation is playing */
-  isPlaying?: boolean;
-  /** Animation progress (0-1) */
-  progress?: number;
-  /** Animation duration */
-  duration?: number;
-  /** Animation easing */
-  easing?: string;
 }
 
 export interface ServiceConfiguration {
@@ -586,7 +567,7 @@ export type BattleOperation =
 /**
  * Dice operations
  */
-export type DiceOperation = "roll" | "validate" | "animate" | "compare" | "highlight" | "reset";
+export type DiceOperation = "roll" | "validate" | "compare" | "highlight" | "reset";
 
 /**
  * Translation operations
@@ -619,7 +600,6 @@ export type ServiceOperation =
 export type UIOperation =
   | "render"
   | "update"
-  | "animate"
   | "handle-event"
   | "validate-input"
   | "focus"
@@ -704,8 +684,6 @@ export interface DiceContext {
   config: DiceConfiguration;
   /** Dice state */
   state: DiceState;
-  /** Animation state */
-  animation: AnimationState;
 }
 
 export interface ServiceContext {
@@ -777,7 +755,7 @@ export interface ValidationMetadata {
 /**
  * Validation rule interface
  */
-export interface ValidationRule<T = any> {
+export interface ValidationRule<T = unknown> {
   /** Rule name */
   name: string;
   /** Rule description */
@@ -795,7 +773,7 @@ export interface ValidationRule<T = any> {
 /**
  * Validator interface
  */
-export interface Validator<T = any> {
+export interface Validator<T = unknown> {
   /** Validation rules */
   rules: ValidationRule<T>[];
   /** Validate value */
@@ -1034,7 +1012,6 @@ export enum ErrorCodes {
   // UI errors (7000-7999)
   UI_RENDER_ERROR = "UI_RENDER_ERROR",
   UI_EVENT_HANDLER_ERROR = "UI_EVENT_HANDLER_ERROR",
-  UI_ANIMATION_ERROR = "UI_ANIMATION_ERROR",
   UI_COMPONENT_ERROR = "UI_COMPONENT_ERROR",
   UI_STATE_ERROR = "UI_STATE_ERROR",
 
@@ -1117,7 +1094,6 @@ export const DEFAULT_ERROR_MESSAGES = {
   [ErrorCodes.GAME_RULE_VIOLATION]: "Game rule violation",
   [ErrorCodes.UI_RENDER_ERROR]: "Render error",
   [ErrorCodes.UI_EVENT_HANDLER_ERROR]: "Event handler error",
-  [ErrorCodes.UI_ANIMATION_ERROR]: "Animation error",
   [ErrorCodes.UI_COMPONENT_ERROR]: "Component error",
   [ErrorCodes.UI_STATE_ERROR]: "State error",
   [ErrorCodes.SERVICE_INITIALIZATION_ERROR]: "Service initialization error",

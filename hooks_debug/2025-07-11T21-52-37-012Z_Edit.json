@@ -1,0 +1,114 @@
+{
+  "timestamp": "2025-07-11T21:52:37.013Z",
+  "input": {
+    "session_id": "c526607e-bb31-48b1-9b3e-ca366485238b",
+    "transcript_path": "/home/cp/.claude/projects/-home-cp-code-dkmaker-risk-dice/c526607e-bb31-48b1-9b3e-ca366485238b.jsonl",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Edit",
+    "tool_input": {
+      "file_path": "/home/cp/code/dkmaker/risk-dice/src/styles/components/battle-screen.css",
+      "old_string": "/* Remove focus outline */\n.dice-container:focus-visible {\n  outline: none;\n}",
+      "new_string": "/* Remove focus outline */\n.dice-container:focus,\n.dice-container:focus-visible {\n  outline: none !important;\n  box-shadow: none !important;\n  border: none !important;\n}"
+    },
+    "tool_response": {
+      "filePath": "/home/cp/code/dkmaker/risk-dice/src/styles/components/battle-screen.css",
+      "oldString": "/* Remove focus outline */\n.dice-container:focus-visible {\n  outline: none;\n}",
+      "newString": "/* Remove focus outline */\n.dice-container:focus,\n.dice-container:focus-visible {\n  outline: none !important;\n  box-shadow: none !important;\n  border: none !important;\n}",
+      "originalFile": "/**\n * Battle Screen Component Styles\n * Dice battle interface with player cards, dice display, and controls\n */\n\n/* Battle screen layout */\n.battle-screen {\n  display: grid;\n  grid-template-areas:\n    \"player-cards\"\n    \"dice-area\"\n    \"controls\";\n  grid-template-rows: min-content 1fr min-content;\n  gap: 0;\n  width: 100%;\n  height: 100%;\n  padding: var(--spacing-md);\n}\n\n/* Player info cards */\n.player-info {\n  display: flex;\n  grid-area: player-cards;\n  gap: var(--spacing-sm);\n  align-self: start;\n  justify-content: center;\n  width: 100%;\n  padding: var(--spacing-xs);\n}\n\n.player-card {\n  position: relative;\n  display: flex;\n  flex-direction: column;\n  gap: 0.5rem;\n  align-items: center;\n  padding: 1.5rem;\n  overflow: hidden;\n  color: #fff;\n  text-align: center;\n  cursor: pointer;\n  border-radius: var(--border-radius-lg);\n  box-shadow: 0 4px 12px rgb(0 0 0 / 15%);\n  backdrop-filter: blur(1px);\n  transition: all var(--transition-slow);\n}\n\n.player-card:hover {\n  box-shadow: 0 8px 24px rgb(0 0 0 / 20%);\n  transform: translateY(-4px);\n}\n\n.player-card:active {\n  transform: translateY(-2px);\n}\n\n.player-card::before {\n  position: absolute;\n  inset: 0;\n  content: \"\";\n  background: linear-gradient(45deg, transparent 30%, rgb(255 255 255 / 10%) 50%, transparent 70%);\n  transform: translateX(-100%);\n  transition: transform 0.6s ease;\n}\n\n.player-card:hover::before {\n  transform: translateX(100%);\n}\n\n.player-info .player-card {\n  flex: 1;\n  max-width: 12rem;\n  padding: 0.75rem;\n  text-align: center;\n}\n\n.player-name {\n  font-size: 1.25rem;\n  font-weight: bold;\n  text-shadow: 0 1px 3px rgb(0 0 0 / 30%);\n}\n\n.army-count {\n  display: flex;\n  gap: 0.25rem;\n  align-items: baseline;\n  font-size: 1.5rem;\n  font-weight: bold;\n}\n\n.current-armies {\n  font-size: 2rem;\n}\n\n.total-armies {\n  font-size: 1rem;\n  opacity: 0.8;\n}\n\n/* Dice container */\n.dice-container {\n  display: flex;\n  flex-direction: column;\n  grid-area: dice-area;\n  gap: var(--spacing-md);\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  min-height: 0;\n  padding: 0;\n  margin: 0;\n  font: inherit;\n  color: inherit;\n  text-align: inherit;\n  appearance: none;\n  outline: none;\n  /* Reset button defaults */\n  background: none;\n  border: none;\n}\n\n/* Remove focus outline */\n.dice-container:focus-visible {\n  outline: none;\n}\n\n/* Disabled state */\n.dice-container:disabled {\n  cursor: default;\n}\n\n.dice-display {\n  display: flex;\n  flex-direction: column;\n  gap: var(--spacing-lg);\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n}\n\n.dice-section {\n  display: flex;\n  flex-direction: column;\n  gap: var(--spacing-xs);\n  align-items: center;\n}\n\n.dice-label {\n  font-size: 1rem;\n  font-weight: 600;\n  text-align: center;\n}\n\n.dice-row {\n  display: flex;\n  flex-direction: row;\n  gap: var(--spacing-sm);\n  align-items: center;\n  justify-content: center;\n}\n\n.vs-divider {\n  padding: var(--spacing-sm) 0;\n  font-size: 1.5rem;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 0 2px 4px rgb(0 0 0 / 50%);\n}\n\n.die {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 21rem;\n  height: 21rem;\n  font-size: 8.25rem;\n  font-weight: bold;\n  color: #1f2937;\n  background: #fff;\n  border: 9px solid #e5e7eb;\n  border-radius: var(--border-radius-lg);\n  box-shadow: 0 12px 36px rgb(0 0 0 / 15%);\n  transition: all var(--transition-slow);\n}\n\n\n\n\n\n/* Battle controls */\n.battle-controls {\n  display: flex;\n  flex-direction: column;\n  grid-area: controls;\n  gap: var(--spacing-sm);\n  align-self: end;\n  width: 100%;\n  padding: var(--spacing-xs);\n}\n\n.result-message {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  min-height: 2rem;\n  padding: 0.75rem;\n  text-align: center;\n  background: rgb(255 255 255 / 95%);\n  border-radius: var(--border-radius-md);\n  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);\n  backdrop-filter: blur(2px);\n}\n\n.result-message p {\n  font-size: 1rem;\n  font-weight: 500;\n  color: #1f2937;\n}\n\n.battle-stats {\n  display: flex;\n  flex-direction: column;\n  gap: 0.25rem;\n  width: 100%;\n  padding: 0.75rem;\n  text-align: center;\n  background: rgb(255 255 255 / 95%);\n  border-radius: var(--border-radius-md);\n  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);\n  backdrop-filter: blur(2px);\n}\n\n.battle-stats p {\n  font-size: 0.875rem;\n  color: #6b7280;\n}\n\n.battle-stats strong {\n  color: #1f2937;\n}\n\n",
+      "structuredPatch": [
+        {
+          "oldStart": 121,
+          "oldLines": 8,
+          "newStart": 121,
+          "newLines": 11,
+          "lines": [
+            " }",
+            " ",
+            " /* Remove focus outline */",
+            "+.dice-container:focus,",
+            " .dice-container:focus-visible {",
+            "-  outline: none;",
+            "+  outline: none !important;",
+            "+  box-shadow: none !important;",
+            "+  border: none !important;",
+            " }",
+            " ",
+            " /* Disabled state */"
+          ]
+        }
+      ],
+      "userModified": false,
+      "replaceAll": false
+    }
+  },
+  "startTime": "2025-07-11T21:52:33.326Z",
+  "steps": [
+    {
+      "step": "initial_check",
+      "lintResult": {
+        "success": true
+      },
+      "tsResult": {
+        "success": true
+      },
+      "cssResult": {
+        "success": false,
+        "output": "",
+        "errors": "[{\"source\":\"/home/cp/code/dkmaker/risk-dice/src/styles/components/battle-screen.css\",\"deprecations\":[],\"invalidOptionWarnings\":[],\"parseErrors\":[],\"errored\":true,\"warnings\":[{\"line\":128,\"column\":3,\"endLine\":128,\"endColumn\":27,\"rule\":\"order/properties-order\",\"severity\":\"error\",\"text\":\"Expected \\\"border\\\" to come before \\\"box-shadow\\\" (order/properties-order)\"},{\"line\":126,\"column\":17,\"endLine\":126,\"endColumn\":27,\"rule\":\"declaration-no-important\",\"severity\":\"warning\",\"text\":\"Unexpected !important (declaration-no-important)\"},{\"line\":127,\"column\":20,\"endLine\":127,\"endColumn\":30,\"rule\":\"declaration-no-important\",\"severity\":\"warning\",\"text\":\"Unexpected !important (declaration-no-important)\"},{\"line\":128,\"column\":16,\"endLine\":128,\"endColumn\":26,\"rule\":\"declaration-no-important\",\"severity\":\"warning\",\"text\":\"Unexpected !important (declaration-no-important)\"}]}]",
+        "json": null
+      },
+      "hadIssues": true
+    },
+    {
+      "step": "format",
+      "jsResult": {
+        "success": true
+      },
+      "cssResult": {
+        "success": true,
+        "output": "",
+        "json": []
+      }
+    },
+    {
+      "step": "lint_pass1",
+      "result": {
+        "success": true
+      }
+    },
+    {
+      "step": "typescript_check",
+      "result": {
+        "success": true
+      }
+    },
+    {
+      "step": "final_lint_check",
+      "jsResult": {
+        "success": true
+      },
+      "cssResult": {
+        "success": true,
+        "output": "",
+        "json": []
+      }
+    }
+  ],
+  "errors": [],
+  "finalResult": "Success - auto-fixed all issues",
+  "modifiedFiles": {
+    "jsFiles": [],
+    "cssFiles": [
+      "/home/cp/code/dkmaker/risk-dice/src/styles/components/battle-screen.css"
+    ],
+    "allFiles": [
+      "/home/cp/code/dkmaker/risk-dice/src/styles/components/battle-screen.css"
+    ]
+  },
+  "parsedIssues": {
+    "biomeIssues": [],
+    "tsIssues": [],
+    "cssIssues": [],
+    "aiPrompts": []
+  }
+}

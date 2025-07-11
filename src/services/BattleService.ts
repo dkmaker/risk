@@ -70,8 +70,14 @@ export class BattleService {
     const comparisonCount = Math.min(attackerDice.length, defenderDice.length);
 
     for (let i = 0; i < comparisonCount; i++) {
-      const attackerDie = attackerDice[i]!;
-      const defenderDie = defenderDice[i]!;
+      const attackerDie = attackerDice[i];
+      const defenderDie = defenderDice[i];
+
+      // Safety check - should never happen due to comparisonCount logic
+      if (attackerDie === undefined || defenderDie === undefined) {
+        continue;
+      }
+
       const winner = attackerDie > defenderDie ? "attacker" : "defender";
 
       comparisons.push({

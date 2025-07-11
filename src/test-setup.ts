@@ -27,8 +27,28 @@ Object.defineProperty(window, "matchMedia", {
   })),
 });
 
+// Define proper types for the global mocks
+interface MockIntersectionObserver {
+  new (
+    callback: IntersectionObserverCallback,
+    options?: IntersectionObserverInit
+  ): IntersectionObserver;
+}
+
+interface MockResizeObserver {
+  new (callback: ResizeObserverCallback): ResizeObserver;
+}
+
+// Extend the global type definitions
+declare global {
+  interface Window {
+    IntersectionObserver: MockIntersectionObserver;
+    ResizeObserver: MockResizeObserver;
+  }
+}
+
 // Mock IntersectionObserver
-(globalThis as any).IntersectionObserver = class IntersectionObserver {
+globalThis.IntersectionObserver = class IntersectionObserver {
   disconnect() {
     // Mock implementation
   }
@@ -38,10 +58,10 @@ Object.defineProperty(window, "matchMedia", {
   unobserve() {
     // Mock implementation
   }
-};
+} as unknown as MockIntersectionObserver;
 
 // Mock ResizeObserver
-(globalThis as any).ResizeObserver = class ResizeObserver {
+globalThis.ResizeObserver = class ResizeObserver {
   disconnect() {
     // Mock implementation
   }
@@ -51,7 +71,7 @@ Object.defineProperty(window, "matchMedia", {
   unobserve() {
     // Mock implementation
   }
-};
+} as unknown as MockResizeObserver;
 
 // Mock env for safe area insets
 Object.defineProperty(window, "env", {

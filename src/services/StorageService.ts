@@ -8,7 +8,6 @@ import type { Player } from "../types/game";
 export interface GameSettings {
   language: string;
   soundEnabled: boolean;
-  animationsEnabled: boolean;
 }
 
 export class StorageService {
@@ -131,7 +130,6 @@ export class StorageService {
     return {
       language: "en",
       soundEnabled: true,
-      animationsEnabled: true,
     };
   }
 

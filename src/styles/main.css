@@ -18,6 +18,4 @@
 @import "./components/modals.css";
 
 /* Utility Styles */
-@import "./utilities/animations.css";
 @import "./utilities/responsive.css";
-@import "./utilities/accessibility.css";

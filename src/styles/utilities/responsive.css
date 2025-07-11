@@ -19,8 +19,8 @@
 
   .player-info {
     flex-direction: row;
-    align-items: center;
     gap: var(--spacing-sm);
+    align-items: center;
   }
 
   .player-info .player-card {

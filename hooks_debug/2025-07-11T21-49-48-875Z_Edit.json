@@ -1,0 +1,181 @@
+{
+  "timestamp": "2025-07-11T21:49:48.875Z",
+  "input": {
+    "session_id": "c526607e-bb31-48b1-9b3e-ca366485238b",
+    "transcript_path": "/home/cp/.claude/projects/-home-cp-code-dkmaker-risk-dice/c526607e-bb31-48b1-9b3e-ca366485238b.jsonl",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Edit",
+    "tool_input": {
+      "file_path": "/home/cp/code/dkmaker/risk-dice/src/hooks/useBattleLogic.ts",
+      "old_string": "    const { attackerDice, defenderDice, comparisons } = battleState.lastResult;",
+      "new_string": "    const { attackerDice, defenderDice } = battleState.lastResult;"
+    },
+    "tool_response": {
+      "filePath": "/home/cp/code/dkmaker/risk-dice/src/hooks/useBattleLogic.ts",
+      "oldString": "    const { attackerDice, defenderDice, comparisons } = battleState.lastResult;",
+      "newString": "    const { attackerDice, defenderDice } = battleState.lastResult;",
+      "originalFile": "/**\n * useBattleLogic - Custom hook for battle mechanics\n * Provides interface to BattleService with state management for battle rounds\n */\n\nimport { useState } from \"preact/hooks\";\nimport { type DiceComparisonResult, battleService } from \"../services/BattleService\";\n\nexport interface BattleState {\n  lastResult: DiceComparisonResult | null;\n  roundHistory: DiceComparisonResult[];\n}\n\nexport function useBattleLogic() {\n  const [battleState, setBattleState] = useState<BattleState>({\n    lastResult: null,\n    roundHistory: [],\n  });\n\n  /**\n   * Execute a battle round\n   */\n  const rollDice = async (\n    attackerArmies: number,\n    defenderArmies: number,\n    onComplete?: (result: DiceComparisonResult) => void\n  ): Promise<DiceComparisonResult> => {\n    const result = battleService.executeBattleRound(attackerArmies, defenderArmies);\n\n    setBattleState((prev) => ({\n      ...prev,\n      lastResult: result,\n      roundHistory: [...prev.roundHistory, result],\n    }));\n\n    onComplete?.(result);\n    return result;\n  };\n\n  /**\n   * Reset battle state\n   */\n  const resetBattle = (): void => {\n    setBattleState({\n      lastResult: null,\n      roundHistory: [],\n    });\n  };\n\n  /**\n   * Get formatted battle result message\n   */\n  const formatResult = (\n    result: DiceComparisonResult,\n    attackerName: string,\n    defenderName: string\n  ): string => {\n    return battleService.formatBattleResult(result, attackerName, defenderName);\n  };\n\n  /**\n   * Calculate battle odds\n   */\n  const calculateOdds = (attackerArmies: number, defenderArmies: number) => {\n    return battleService.calculateBattleOdds(attackerArmies, defenderArmies);\n  };\n\n  /**\n   * Simulate complete battle\n   */\n  const simulateCompleteBattle = (attackerArmies: number, defenderArmies: number) => {\n    return battleService.simulateCompleteBattle(attackerArmies, defenderArmies);\n  };\n\n  /**\n   * Get dice display data for current result\n   */\n  const getDiceDisplay = () => {\n    if (!battleState.lastResult) {\n      return null;\n    }\n\n    const { attackerDice, defenderDice, comparisons } = battleState.lastResult;\n\n    return {\n      attackerDice: attackerDice.map((value: number) => ({\n        value,\n      })),\n      defenderDice: defenderDice.map((value: number) => ({\n        value,\n      })),\n    };\n  };\n\n  /**\n   * Check if battle round can be executed\n   */\n  const canRoll = (): boolean => {\n    return true;\n  };\n\n  return {\n    // State\n    ...battleState,\n\n    // Actions\n    rollDice,\n    resetBattle,\n    formatResult,\n    calculateOdds,\n    simulateCompleteBattle,\n    getDiceDisplay,\n    canRoll,\n\n    // Computed\n    hasResults: battleState.lastResult !== null,\n    totalRounds: battleState.roundHistory.length,\n  };\n}\n",
+      "structuredPatch": [
+        {
+          "oldStart": 80,
+          "oldLines": 7,
+          "newStart": 80,
+          "newLines": 7,
+          "lines": [
+            "       return null;",
+            "     }",
+            " ",
+            "-    const { attackerDice, defenderDice, comparisons } = battleState.lastResult;",
+            "+    const { attackerDice, defenderDice } = battleState.lastResult;",
+            " ",
+            "     return {",
+            "       attackerDice: attackerDice.map((value: number) => ({"
+          ]
+        }
+      ],
+      "userModified": false,
+      "replaceAll": false
+    }
+  },
+  "startTime": "2025-07-11T21:49:42.898Z",
+  "steps": [
+    {
+      "step": "initial_check",
+      "lintResult": {
+        "success": true,
+        "output": "{\"summary\":{\"changed\":0,\"unchanged\":1,\"matches\":0,\"duration\":{\"secs\":0,\"nanos\":8338633},\"errors\":0,\"warnings\":0,\"skipped\":0,\"suggestedFixesSkipped\":0,\"diagnosticsNotPrinted\":0},\"diagnostics\":[],\"command\":\"check\"}\n",
+        "json": {
+          "summary": {
+            "changed": 0,
+            "unchanged": 1,
+            "matches": 0,
+            "duration": {
+              "secs": 0,
+              "nanos": 8338633
+            },
+            "errors": 0,
+            "warnings": 0,
+            "skipped": 0,
+            "suggestedFixesSkipped": 0,
+            "diagnosticsNotPrinted": 0
+          },
+          "diagnostics": [],
+          "command": "check"
+        }
+      },
+      "tsResult": {
+        "success": true,
+        "output": ""
+      },
+      "cssResult": {
+        "success": true
+      },
+      "hadIssues": false
+    },
+    {
+      "step": "format",
+      "jsResult": {
+        "success": true,
+        "output": "{\"summary\":{\"changed\":0,\"unchanged\":1,\"matches\":0,\"duration\":{\"secs\":0,\"nanos\":1869779},\"errors\":0,\"warnings\":0,\"skipped\":0,\"suggestedFixesSkipped\":0,\"diagnosticsNotPrinted\":0},\"diagnostics\":[],\"command\":\"format\"}\n",
+        "json": {
+          "summary": {
+            "changed": 0,
+            "unchanged": 1,
+            "matches": 0,
+            "duration": {
+              "secs": 0,
+              "nanos": 1869779
+            },
+            "errors": 0,
+            "warnings": 0,
+            "skipped": 0,
+            "suggestedFixesSkipped": 0,
+            "diagnosticsNotPrinted": 0
+          },
+          "diagnostics": [],
+          "command": "format"
+        }
+      },
+      "cssResult": {
+        "success": true
+      }
+    },
+    {
+      "step": "lint_pass1",
+      "result": {
+        "success": true,
+        "output": "{\"summary\":{\"changed\":0,\"unchanged\":1,\"matches\":0,\"duration\":{\"secs\":0,\"nanos\":6395824},\"errors\":0,\"warnings\":0,\"skipped\":0,\"suggestedFixesSkipped\":0,\"diagnosticsNotPrinted\":0},\"diagnostics\":[],\"command\":\"check\"}\n",
+        "json": {
+          "summary": {
+            "changed": 0,
+            "unchanged": 1,
+            "matches": 0,
+            "duration": {
+              "secs": 0,
+              "nanos": 6395824
+            },
+            "errors": 0,
+            "warnings": 0,
+            "skipped": 0,
+            "suggestedFixesSkipped": 0,
+            "diagnosticsNotPrinted": 0
+          },
+          "diagnostics": [],
+          "command": "check"
+        }
+      }
+    },
+    {
+      "step": "typescript_check",
+      "result": {
+        "success": true,
+        "output": ""
+      }
+    },
+    {
+      "step": "final_lint_check",
+      "jsResult": {
+        "success": true,
+        "output": "{\"summary\":{\"changed\":0,\"unchanged\":1,\"matches\":0,\"duration\":{\"secs\":0,\"nanos\":5045159},\"errors\":0,\"warnings\":0,\"skipped\":0,\"suggestedFixesSkipped\":0,\"diagnosticsNotPrinted\":0},\"diagnostics\":[],\"command\":\"check\"}\n",
+        "json": {
+          "summary": {
+            "changed": 0,
+            "unchanged": 1,
+            "matches": 0,
+            "duration": {
+              "secs": 0,
+              "nanos": 5045159
+            },
+            "errors": 0,
+            "warnings": 0,
+            "skipped": 0,
+            "suggestedFixesSkipped": 0,
+            "diagnosticsNotPrinted": 0
+          },
+          "diagnostics": [],
+          "command": "check"
+        }
+      },
+      "cssResult": {
+        "success": true
+      }
+    }
+  ],
+  "errors": [],
+  "finalResult": "Success - no issues found",
+  "modifiedFiles": {
+    "jsFiles": [
+      "/home/cp/code/dkmaker/risk-dice/src/hooks/useBattleLogic.ts"
+    ],
+    "cssFiles": [],
+    "allFiles": [
+      "/home/cp/code/dkmaker/risk-dice/src/hooks/useBattleLogic.ts"
+    ]
+  },
+  "parsedIssues": {
+    "biomeIssues": [],
+    "tsIssues": [],
+    "cssIssues": [],
+    "aiPrompts": []
+  }
+}

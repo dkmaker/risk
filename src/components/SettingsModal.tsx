@@ -83,9 +83,8 @@ export default function SettingsModal({ isOpen, onClose, onManualNavigation }: S
         dialog.removeEventListener("click", handleClick);
       };
     }
-
-    // Return empty cleanup function when modal is not open
-    return () => {};
+    // Return undefined when modal is not open
+    return undefined;
   }, [isOpen, onClose]);
 
   const handlePlayerSetup = () => {

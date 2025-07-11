@@ -32,7 +32,7 @@ export type GameScreen =
   | "settings-screen";
 
 // Battle phase types
-export type BattlePhase = "setup" | "rolling" | "results" | "finished";
+export type BattlePhase = "setup" | "results" | "finished";
 
 // Language types
 export type Language = "en" | "da";
@@ -124,8 +124,6 @@ export interface GameSettings {
   language: Language;
   /** Whether sound effects are enabled */
   soundEnabled: boolean;
-  /** Animation speed multiplier (0.5 = slow, 1.0 = normal, 2.0 = fast) */
-  animationSpeed: number;
   /** Whether to show advanced statistics */
   showStats: boolean;
 }
@@ -182,7 +180,6 @@ export const DEFAULT_BATTLE_CONFIG: BattleConfig = {
 export const DEFAULT_GAME_SETTINGS: GameSettings = {
   language: "en",
   soundEnabled: true,
-  animationSpeed: 1.0,
   showStats: false,
 } as const;
 

@@ -168,14 +168,16 @@
     }
   },
   "files": {
-    "include": ["src/**/*", "*.js", "*.ts", "*.json", "*.css"],
+    "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx"],
     "ignore": [
       "node_modules/**/*",
       "dist/**/*",
       "dev-dist/**/*",
       ".claude/**/*",
       "public/**/*",
-      ".git/**/*"
+      ".git/**/*",
+      "scripts/**/*",
+      "src/types/README.md"
     ]
   },
   "vcs": {

@@ -17,6 +17,10 @@
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // AI instructions for common linting issues
 const AI_INSTRUCTIONS = {
@@ -51,6 +55,12 @@ const AI_INSTRUCTIONS = {
   useValidTypeof: "Use correct typeof comparisons",
   noGlobalEval: "Avoid using eval() for security reasons",
   noDangerouslySetInnerHtml: "Sanitize HTML content to prevent XSS attacks",
+  noNonNullAssertion: "Replace non-null assertion (!) with optional chaining (?.) or proper null checks",
+  noArrayIndexKey: "Use stable unique identifiers for React keys instead of array indices",
+  useButtonType: "Add explicit type=\"button\" to button elements to prevent form submission",
+  useExhaustiveDependencies: "Include all dependencies in React hook dependency arrays",
+  useSemanticElements: "Use semantic HTML elements (e.g., <button>) instead of divs with ARIA roles",
+  noExcessiveCognitiveComplexity: "Break down complex functions into smaller, focused functions",
 };
 
 function parseHookInput() {
@@ -60,6 +70,50 @@ function parseHookInput() {
   } catch (error) {
     console.error("Error parsing hook input:", error.message);
     process.exit(1);
+  }
+}
+
+function saveDebugInfo(hookData, debugInfo) {
+  try {
+    const debugDir = path.join(path.dirname(__dirname), "hooks_debug");
+    
+    // Create debug directory if it doesn't exist
+    if (!fs.existsSync(debugDir)) {
+      fs.mkdirSync(debugDir, { recursive: true });
+    }
+    
+    // Generate filename with timestamp and tool name
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const toolName = hookData.tool_name || "unknown";
+    const filename = `${timestamp}_${toolName}.json`;
+    const filepath = path.join(debugDir, filename);
+    
+    // Save debug info
+    fs.writeFileSync(filepath, JSON.stringify({
+      timestamp: new Date().toISOString(),
+      input: hookData,
+      ...debugInfo
+    }, null, 2));
+    
+    // Rotate old files - keep only last 10
+    const files = fs.readdirSync(debugDir)
+      .filter(f => f.endsWith(".json"))
+      .map(f => ({ name: f, path: path.join(debugDir, f), time: fs.statSync(path.join(debugDir, f)).mtime }))
+      .sort((a, b) => b.time - a.time);
+    
+    // Delete files beyond the 10th
+    if (files.length > 10) {
+      files.slice(10).forEach(f => {
+        try {
+          fs.unlinkSync(f.path);
+        } catch (e) {
+          // Ignore errors when deleting old files
+        }
+      });
+    }
+  } catch (error) {
+    // Don't fail the hook if debug logging fails
+    console.error("Failed to save debug info:", error.message);
   }
 }
 
@@ -74,27 +128,49 @@ function getModifiedFiles(hookData) {
     files.push(hookData.tool_input.file_path);
   }
 
-  // Filter to only include JS/TS/JSON files
-  return files.filter((file) => {
+  // Separate JS/TS files and CSS files
+  const jsFiles = files.filter((file) => {
     const ext = path.extname(file).toLowerCase();
-    return [".js", ".ts", ".jsx", ".tsx", ".json"].includes(ext);
+    const isValidExt = [".js", ".ts", ".jsx", ".tsx", ".json"].includes(ext);
+    const isInSrc = file.includes("/src/");
+    return isValidExt && isInSrc;
   });
+
+  const cssFiles = files.filter((file) => {
+    const ext = path.extname(file).toLowerCase();
+    const isValidExt = [".css"].includes(ext);
+    const isInSrc = file.includes("/src/");
+    return isValidExt && isInSrc;
+  });
+
+  return { jsFiles, cssFiles, allFiles: [...jsFiles, ...cssFiles] };
 }
 
 function runBiomeCheck(files) {
   try {
     const fileArgs = files.length > 0 ? files.join(" ") : ".";
-    const result = execSync(`npx biome check --apply ${fileArgs}`, {
+    const result = execSync(`npx biome check --write --reporter json ${fileArgs}`, {
       encoding: "utf8",
       cwd: process.cwd(),
       stdio: "pipe",
     });
-    return { success: true, output: result };
+    return { success: true, output: result, json: JSON.parse(result) };
   } catch (error) {
+    // Try to parse JSON from stdout even on error
+    let jsonOutput = null;
+    try {
+      if (error.stdout) {
+        jsonOutput = JSON.parse(error.stdout);
+      }
+    } catch (e) {
+      // Ignore JSON parse errors
+    }
+    
     return {
       success: false,
       output: error.stdout || "",
       errors: error.stderr || error.message,
+      json: jsonOutput
     };
   }
 }
@@ -102,17 +178,28 @@ function runBiomeCheck(files) {
 function runBiomeFormat(files) {
   try {
     const fileArgs = files.length > 0 ? files.join(" ") : ".";
-    const result = execSync(`npx biome format --write ${fileArgs}`, {
+    const result = execSync(`npx biome format --write --reporter json ${fileArgs}`, {
       encoding: "utf8",
       cwd: process.cwd(),
       stdio: "pipe",
     });
-    return { success: true, output: result };
+    return { success: true, output: result, json: JSON.parse(result) };
   } catch (error) {
+    // Try to parse JSON from stdout even on error
+    let jsonOutput = null;
+    try {
+      if (error.stdout) {
+        jsonOutput = JSON.parse(error.stdout);
+      }
+    } catch (e) {
+      // Ignore JSON parse errors
+    }
+    
     return {
       success: false,
       output: error.stdout || "",
       errors: error.stderr || error.message,
+      json: jsonOutput
     };
   }
 }
@@ -142,6 +229,75 @@ function runTypeScriptCheck(files) {
       success: false,
       output: error.stdout || "",
       errors: error.stderr || error.message,
+    };
+  }
+}
+
+function runStylelintCheck(files) {
+  try {
+    if (files.length === 0) {
+      return { success: true, output: "No CSS files to check" };
+    }
+
+    const fileArgs = files.join(" ");
+    const result = execSync(`npx stylelint ${fileArgs} --formatter json`, {
+      encoding: "utf8",
+      cwd: process.cwd(),
+      stdio: "pipe",
+    });
+    
+    // Stylelint returns empty array when no issues
+    const jsonResult = JSON.parse(result || "[]");
+    return { success: true, output: result, json: jsonResult };
+  } catch (error) {
+    let jsonOutput = null;
+    try {
+      if (error.stdout) {
+        jsonOutput = JSON.parse(error.stdout);
+      }
+    } catch (e) {
+      // Ignore JSON parse errors
+    }
+    
+    return {
+      success: false,
+      output: error.stdout || "",
+      errors: error.stderr || error.message,
+      json: jsonOutput
+    };
+  }
+}
+
+function runStylelintFix(files) {
+  try {
+    if (files.length === 0) {
+      return { success: true, output: "No CSS files to fix" };
+    }
+
+    const fileArgs = files.join(" ");
+    const result = execSync(`npx stylelint ${fileArgs} --fix --formatter json`, {
+      encoding: "utf8",
+      cwd: process.cwd(),
+      stdio: "pipe",
+    });
+    
+    const jsonResult = JSON.parse(result || "[]");
+    return { success: true, output: result, json: jsonResult };
+  } catch (error) {
+    let jsonOutput = null;
+    try {
+      if (error.stdout) {
+        jsonOutput = JSON.parse(error.stdout);
+      }
+    } catch (e) {
+      // Ignore JSON parse errors
+    }
+    
+    return {
+      success: false,
+      output: error.stdout || "",
+      errors: error.stderr || error.message,
+      json: jsonOutput
     };
   }
 }
@@ -176,44 +332,155 @@ function parseTypeScriptOutput(output, errors) {
   return issues;
 }
 
+function parseStylelintJsonOutput(jsonOutput) {
+  const issues = [];
+  
+  if (!jsonOutput || !Array.isArray(jsonOutput)) {
+    return issues;
+  }
+  
+  // Stylelint JSON format is an array of file results
+  for (const fileResult of jsonOutput) {
+    if (!fileResult.warnings || fileResult.warnings.length === 0) {
+      continue;
+    }
+    
+    const file = fileResult.source;
+    
+    for (const warning of fileResult.warnings) {
+      issues.push({
+        file: file,
+        line: warning.line || 0,
+        column: warning.column || 0,
+        severity: warning.severity || "error",
+        message: warning.text || "Unknown CSS issue",
+        rule: warning.rule || "unknown"
+      });
+    }
+  }
+  
+  return issues;
+}
+
+function parseBiomeJsonOutput(jsonOutput) {
+  const issues = [];
+  
+  if (!jsonOutput || !jsonOutput.diagnostics) {
+    return issues;
+  }
+  
+  // Process each diagnostic
+  for (const diagnostic of jsonOutput.diagnostics) {
+    // Skip if not an error or warning
+    if (!["error", "warning"].includes(diagnostic.severity)) {
+      continue;
+    }
+    
+    // Extract file path
+    let file = "unknown";
+    let line = 0;
+    let column = 0;
+    
+    if (diagnostic.location) {
+      // Get file path
+      if (diagnostic.location.path && diagnostic.location.path.file) {
+        file = diagnostic.location.path.file;
+      }
+      
+      // Get line and column from span and source code
+      if (diagnostic.location.span && diagnostic.location.sourceCode) {
+        const spanStart = diagnostic.location.span[0];
+        const sourceCode = diagnostic.location.sourceCode;
+        
+        // Count lines and columns based on character position
+        let charCount = 0;
+        let currentLine = 1;
+        let currentColumn = 1;
+        
+        for (let i = 0; i < sourceCode.length && i < spanStart; i++) {
+          if (sourceCode[i] === '\n') {
+            currentLine++;
+            currentColumn = 1;
+          } else {
+            currentColumn++;
+          }
+        }
+        
+        line = currentLine;
+        column = currentColumn;
+      }
+    }
+    
+    // Extract rule name from category
+    const rule = diagnostic.category || "unknown";
+    
+    // Extract message text
+    let message = "Unknown error";
+    if (diagnostic.message && Array.isArray(diagnostic.message)) {
+      // Message is an array of objects with content
+      message = diagnostic.message.map(m => m.content || "").join(" ").trim();
+    } else if (diagnostic.description) {
+      message = diagnostic.description;
+    }
+    
+    issues.push({
+      file: file,
+      line: line,
+      column: column,
+      severity: diagnostic.severity,
+      message: message,
+      rule: rule
+    });
+  }
+  
+  return issues;
+}
+
+// Keep the old parser as fallback for when JSON parsing fails
 function parseBiomeOutput(output) {
   const issues = [];
   const lines = output.split("\n");
 
   let currentFile = null;
-  let currentIssue = null;
+  let currentLine = null;
+  let currentRule = null;
+  let currentMessage = null;
+  let collectingMessage = false;
 
   for (const line of lines) {
-    // Parse file paths
-    if (line.includes("━━━") && line.includes(".")) {
-      const match = line.match(/━━━\s*(.+?\.(js|ts|jsx|tsx|json))/);
-      if (match) {
-        currentFile = match[1];
-      }
+    // Parse file paths with line numbers and rule names
+    // Format: /path/to/file.tsx:10:17 lint/style/noNonNullAssertion
+    const fileMatch = line.match(/^(.+?\.(js|ts|jsx|tsx|json)):(\d+):(\d+)\s+lint\/(\w+\/\w+)/);
+    if (fileMatch) {
+      currentFile = fileMatch[1];
+      currentLine = Number.parseInt(fileMatch[3]);
+      currentRule = fileMatch[5];
+      collectingMessage = false;
+      currentMessage = null;
+      continue;
     }
 
-    // Parse error lines
-    if (line.includes("✖") || line.includes("⚠")) {
-      const match = line.match(/([✖⚠])\s*(.+?)(?:\s+(\w+\/\w+))?$/);
-      if (match) {
-        const [, severity, message, ruleId] = match;
-        currentIssue = {
+    // Parse error indicator line
+    if (line.includes("× ") && currentFile) {
+      collectingMessage = true;
+      currentMessage = line.replace(/^\s*×\s*/, "").trim();
+      
+      // Create the issue immediately
+      if (currentFile && currentLine && currentRule && currentMessage) {
+        issues.push({
           file: currentFile,
-          severity: severity === "✖" ? "error" : "warning",
-          message: message.trim(),
-          rule: ruleId,
-          line: null,
-        };
-      }
-    }
-
-    // Parse line numbers
-    if (currentIssue && line.includes("│")) {
-      const match = line.match(/(\d+)\s*│/);
-      if (match) {
-        currentIssue.line = Number.parseInt(match[1]);
-        issues.push(currentIssue);
-        currentIssue = null;
+          line: currentLine,
+          severity: "error",
+          message: currentMessage,
+          rule: currentRule
+        });
+        
+        // Reset for next issue
+        currentFile = null;
+        currentLine = null;
+        currentRule = null;
+        currentMessage = null;
+        collectingMessage = false;
       }
     }
   }
@@ -251,74 +518,11 @@ function generateAIPrompts(issues) {
   return prompts;
 }
 
-function formatErrorOutput(biomeIssues, tsIssues, aiPrompts) {
-  const allIssues = [...biomeIssues, ...tsIssues];
+// Removed unused formatErrorOutput function - functionality is covered by generateClaudeInstructions
 
-  if (allIssues.length === 0) {
-    return "All code quality checks passed! ✅";
-  }
-
-  let output = `\n🚨 Code Quality Issues Found (${allIssues.length} total)\n\n`;
-
-  // Group issues by file
-  const fileIssues = {};
-  for (const issue of allIssues) {
-    if (!fileIssues[issue.file]) {
-      fileIssues[issue.file] = [];
-    }
-    fileIssues[issue.file].push(issue);
-  }
-
-  // Display issues by file
-  for (const [file, fileIssuesList] of Object.entries(fileIssues)) {
-    output += `📁 ${file}:\n`;
-    for (const issue of fileIssuesList) {
-      const location = issue.line ? `line ${issue.line}` : "unknown location";
-      const column = issue.column ? `:${issue.column}` : "";
-      const severity = issue.severity === "error" ? "❌" : "⚠️";
-      const sourceIcon = issue.source === "typescript" ? "🔷" : "🔸";
-
-      output += `   ${severity} ${sourceIcon} ${location}${column}: ${issue.message}`;
-
-      if (issue.rule) {
-        output += ` (${issue.rule})`;
-      } else if (issue.code) {
-        output += ` (${issue.code})`;
-      }
-      output += "\n";
-    }
-    output += "\n";
-  }
-
-  // Display AI assistance prompts for Biome issues
-  if (aiPrompts.length > 0) {
-    output += "🤖 AI-Assisted Fixes:\n\n";
-    for (const prompt of aiPrompts) {
-      output += `🔧 ${prompt.rule} (${prompt.count} occurrences):\n`;
-      output += `   💡 ${prompt.instruction}\n`;
-      output += `   📂 Files: ${prompt.files.join(", ")}\n\n`;
-    }
-  }
-
-  // Display TypeScript issues summary
-  if (tsIssues.length > 0) {
-    output += `🔷 TypeScript Issues: ${tsIssues.length} type errors require manual fixes\n\n`;
-  }
-
-  // Display summary
-  if (biomeIssues.length > 0) {
-    output += `🔸 Biome Issues: ${biomeIssues.length} linting issues require manual fixes\n\n`;
-  }
-
-  output += "❌ Code quality checks failed. Please fix the issues above before continuing.\n";
-  output += "ℹ️ All auto-fixable issues have already been resolved by the hook.\n";
-
-  return output;
-}
-
-function generateClaudeInstructions(biomeIssues, tsIssues, aiPrompts, hadInitialIssues = false) {
+function generateClaudeInstructions(biomeIssues, tsIssues, cssIssues, aiPrompts, hadInitialIssues = false) {
   // If no actual issues remain, only show auto-fix message if we actually fixed something
-  if (biomeIssues.length === 0 && tsIssues.length === 0) {
+  if (biomeIssues.length === 0 && tsIssues.length === 0 && cssIssues.length === 0) {
     if (hadInitialIssues) {
       return "All auto-fixable issues have been resolved. No manual fixes required.";
     }
@@ -352,6 +556,31 @@ function generateClaudeInstructions(biomeIssues, tsIssues, aiPrompts, hadInitial
     instructions += "🔸 Code Quality Issues (fix after TypeScript errors):\n";
     const fileGroups = {};
     for (const issue of biomeIssues) {
+      if (!fileGroups[issue.file]) {
+        fileGroups[issue.file] = [];
+      }
+      fileGroups[issue.file].push(issue);
+    }
+
+    for (const [file, issues] of Object.entries(fileGroups)) {
+      instructions += `  📁 ${file}:\n`;
+      for (const issue of issues) {
+        const location = issue.line ? `line ${issue.line}` : "unknown location";
+        instructions += `    • ${location}: ${issue.message}`;
+        if (issue.rule) {
+          instructions += ` (${issue.rule})`;
+        }
+        instructions += "\n";
+      }
+    }
+    instructions += "\n";
+  }
+
+  // CSS issues
+  if (cssIssues.length > 0) {
+    instructions += "🎨 CSS Issues:\n";
+    const fileGroups = {};
+    for (const issue of cssIssues) {
       if (!fileGroups[issue.file]) {
         fileGroups[issue.file] = [];
       }
@@ -406,70 +635,155 @@ function generateClaudeInstructions(biomeIssues, tsIssues, aiPrompts, hadInitial
 
 function main() {
   const hookData = parseHookInput();
+  const debugInfo = {
+    startTime: new Date().toISOString(),
+    steps: [],
+    errors: [],
+    finalResult: null
+  };
 
   // Only process file modification tools
   if (!["Write", "Edit", "MultiEdit"].includes(hookData.tool_name)) {
+    debugInfo.finalResult = "Skipped - not a file modification tool";
+    saveDebugInfo(hookData, debugInfo);
     process.exit(0);
   }
 
-  const modifiedFiles = getModifiedFiles(hookData);
+  const { jsFiles, cssFiles, allFiles } = getModifiedFiles(hookData);
+  debugInfo.modifiedFiles = { jsFiles, cssFiles, allFiles };
 
-  if (modifiedFiles.length === 0) {
+  if (allFiles.length === 0) {
     // Silent exit for non-relevant files
+    debugInfo.finalResult = "Skipped - no relevant files";
+    saveDebugInfo(hookData, debugInfo);
     process.exit(0);
   }
 
   // Step 1: Run initial check to see if there are any issues before auto-fixing
-  const initialLintResult = runBiomeCheck(modifiedFiles);
-  const initialTsResult = runTypeScriptCheck(modifiedFiles);
-  const hadInitialIssues = !(initialLintResult.success && initialTsResult.success);
+  const initialLintResult = jsFiles.length > 0 ? runBiomeCheck(jsFiles) : { success: true };
+  const initialTsResult = jsFiles.length > 0 ? runTypeScriptCheck(jsFiles) : { success: true };
+  const initialCssResult = cssFiles.length > 0 ? runStylelintCheck(cssFiles) : { success: true };
+  const hadInitialIssues = !(initialLintResult.success && initialTsResult.success && initialCssResult.success);
+  
+  debugInfo.steps.push({
+    step: "initial_check",
+    lintResult: initialLintResult,
+    tsResult: initialTsResult,
+    cssResult: initialCssResult,
+    hadIssues: hadInitialIssues
+  });
 
   // Step 2: Run formatting (silently)
-  const _formatResult = runBiomeFormat(modifiedFiles);
+  const formatResult = jsFiles.length > 0 ? runBiomeFormat(jsFiles) : { success: true };
+  const cssFixResult = cssFiles.length > 0 ? runStylelintFix(cssFiles) : { success: true };
+  debugInfo.steps.push({
+    step: "format",
+    jsResult: formatResult,
+    cssResult: cssFixResult
+  });
 
   // Step 3: Run linting with auto-fix (first pass)
-  const lintResult1 = runBiomeCheck(modifiedFiles);
+  const lintResult1 = jsFiles.length > 0 ? runBiomeCheck(jsFiles) : { success: true };
+  debugInfo.steps.push({
+    step: "lint_pass1",
+    result: lintResult1
+  });
 
   if (!lintResult1.success) {
     // Run Biome again after auto-fix to see if issues remain
-    const _lintResult2 = runBiomeCheck(modifiedFiles);
+    const lintResult2 = runBiomeCheck(jsFiles);
+    debugInfo.steps.push({
+      step: "lint_pass2",
+      result: lintResult2
+    });
   }
 
   // Step 4: Run TypeScript checking
-  const tsResult = runTypeScriptCheck(modifiedFiles);
+  const tsResult = jsFiles.length > 0 ? runTypeScriptCheck(jsFiles) : { success: true };
+  debugInfo.steps.push({
+    step: "typescript_check",
+    result: tsResult
+  });
 
   // Step 5: Final verification - run all checks again to get current state
-  const finalLintResult = runBiomeCheck(modifiedFiles);
+  const finalLintResult = jsFiles.length > 0 ? runBiomeCheck(jsFiles) : { success: true };
+  const finalCssResult = cssFiles.length > 0 ? runStylelintCheck(cssFiles) : { success: true };
+  debugInfo.steps.push({
+    step: "final_lint_check",
+    jsResult: finalLintResult,
+    cssResult: finalCssResult
+  });
 
   // Parse only remaining issues that couldn't be auto-fixed
-  const remainingBiomeIssues = finalLintResult.success
-    ? []
-    : parseBiomeOutput(`${finalLintResult.output}\n${finalLintResult.errors || ""}`);
+  let remainingBiomeIssues = [];
+  if (!finalLintResult.success) {
+    if (finalLintResult.json) {
+      // Use JSON parser if available
+      remainingBiomeIssues = parseBiomeJsonOutput(finalLintResult.json);
+    } else {
+      // Fallback to text parser
+      remainingBiomeIssues = parseBiomeOutput(`${finalLintResult.output}\n${finalLintResult.errors || ""}`);
+    }
+  }
   const tsIssues = tsResult.success ? [] : parseTypeScriptOutput(tsResult.output, tsResult.errors);
+  
+  let cssIssues = [];
+  if (!finalCssResult.success && finalCssResult.json) {
+    cssIssues = parseStylelintJsonOutput(finalCssResult.json);
+  }
 
   // Only generate AI prompts for remaining unfixable Biome issues
   const aiPrompts = generateAIPrompts(remainingBiomeIssues);
+  
+  debugInfo.parsedIssues = {
+    biomeIssues: remainingBiomeIssues,
+    tsIssues: tsIssues,
+    cssIssues: cssIssues,
+    aiPrompts: aiPrompts
+  };
 
   // Check if all checks passed after auto-fixing
-  if (finalLintResult.success && tsResult.success) {
+  if (finalLintResult.success && tsResult.success && finalCssResult.success) {
+    debugInfo.finalResult = hadInitialIssues ? "Success - auto-fixed all issues" : "Success - no issues found";
+    saveDebugInfo(hookData, debugInfo);
     if (hadInitialIssues) {
-    } else {
+      console.error("✅ All auto-fixable issues have been resolved.");
     }
+    process.exit(0);
+  } else if (remainingBiomeIssues.length === 0 && tsIssues.length === 0 && cssIssues.length === 0) {
+    // No actual issues found, but commands reported failure (e.g., no files to process)
+    // Check if it's because no files were processed
+    const noFilesProcessed = finalLintResult.errors && finalLintResult.errors.includes("No files were processed");
+    if (noFilesProcessed) {
+      debugInfo.finalResult = "Success - no files to process (files outside src/)";
+    } else {
+      debugInfo.finalResult = "Success - no issues found";
+    }
+    saveDebugInfo(hookData, debugInfo);
     process.exit(0);
   } else {
     // Generate specific instructions for Claude to fix the issues
     const instructions = generateClaudeInstructions(
       remainingBiomeIssues,
       tsIssues,
+      cssIssues,
       aiPrompts,
       hadInitialIssues
     );
 
     // Use advanced JSON output to instruct Claude how to fix the issues
-    const _hookResponse = {
+    const hookResponse = {
       decision: "block",
       reason: instructions,
     };
+    
+    debugInfo.finalResult = "Blocked - issues found";
+    debugInfo.hookResponse = hookResponse;
+    debugInfo.instructions = instructions;
+    saveDebugInfo(hookData, debugInfo);
+
+    // Output the instructions to stderr so Claude can see them
+    console.error(instructions);
 
     // Exit with code 2 to block execution
     process.exit(2);

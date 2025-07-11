@@ -1,5 +1,5 @@
 /**
- * BattleScreen - Main battle interface with dice rolling and animations
+ * BattleScreen - Main battle interface with dice rolling
  * Implements the complete Risk battle system with visual feedback
  */
 
@@ -15,24 +15,20 @@ interface PlayerCardProps {
   playerColor: string;
   armies: number;
   initialArmies: number;
-  isWinner?: boolean;
-  isLoser?: boolean;
-  isTie?: boolean;
 }
 
-function PlayerCard({
-  playerName,
-  playerColor,
-  armies,
-  initialArmies,
-  isWinner,
-  isLoser,
-  isTie,
-}: PlayerCardProps) {
-  const cardClass = `player-card${isWinner ? " card-winner" : ""}${isLoser ? " card-loser" : ""}${isTie ? " card-tie" : ""}`;
+interface DiceValue {
+  value: number;
+}
 
+interface DiceState {
+  attackerDice: DiceValue[];
+  defenderDice: DiceValue[];
+}
+
+function PlayerCard({ playerName, playerColor, armies, initialArmies }: PlayerCardProps) {
   return (
-    <div className={cardClass} style={{ backgroundColor: playerColor }}>
+    <div className="player-card" style={{ backgroundColor: playerColor }}>
       <div className="player-name">{playerName}</div>
       <div className="army-count">
         <span className="current-armies">{armies}</span>
@@ -40,6 +36,20 @@ function PlayerCard({
       </div>
     </div>
   );
+}
+
+// Helper functions to reduce complexity
+function generateRandomDice(count: number): DiceValue[] {
+  return Array.from({ length: count }, () => ({
+    value: Math.floor(Math.random() * 6) + 1,
+  }));
+}
+
+function generateDefaultDiceState(): DiceState {
+  return {
+    attackerDice: generateRandomDice(3),
+    defenderDice: generateRandomDice(2),
+  };
 }
 
 export default function BattleScreen() {
@@ -55,68 +65,22 @@ export default function BattleScreen() {
     goToPlayerSetup,
   } = useGameState();
 
-  const { rollDice, resetBattle, formatResult, getDiceDisplay, canRoll, isRolling } =
-    useBattleLogic();
+  const { rollDice, resetBattle, formatResult, getDiceDisplay, canRoll } = useBattleLogic();
 
   const [resultMessage, setResultMessage] = useState<string>("");
   const [showWithdrawConfirmation, setShowWithdrawConfirmation] = useState(false);
-  const [roundWinner, setRoundWinner] = useState<"attacker" | "defender" | "tie" | null>(null);
-  const [defaultDice, setDefaultDice] = useState<{
-    attackerDice: Array<{ value: number; isWinner: boolean }>;
-    defenderDice: Array<{ value: number; isWinner: boolean }>;
-  } | null>(null);
-  const [rollingDice, setRollingDice] = useState<{
-    attackerDice: Array<{ value: number; isWinner: boolean }>;
-    defenderDice: Array<{ value: number; isWinner: boolean }>;
-  } | null>(null);
+  const [defaultDice, setDefaultDice] = useState<DiceState | null>(null);
 
   // Reset battle state when component mounts and show initial dice
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We only want this to run once on mount
   useEffect(() => {
     resetBattle();
     setResultMessage("Touch dice to roll!");
-    setRoundWinner(null);
-    // Set default dice
-    setDefaultDice({
-      attackerDice: [
-        { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
-        { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
-        { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
-      ],
-      defenderDice: [
-        { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
-        { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
-      ],
-    });
-  }, []);
-
-  // Update dice numbers rapidly during rolling animation
-  useEffect(() => {
-    let interval: number;
-
-    if (isRolling) {
-      interval = setInterval(() => {
-        setRollingDice({
-          attackerDice: [
-            { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
-            { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
-            { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
-          ],
-          defenderDice: [
-            { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
-            { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
-          ],
-        });
-      }, 100); // Change numbers every 100ms
-    } else {
-      setRollingDice(null);
+    // Generate initial dice state only once on mount
+    if (!defaultDice) {
+      setDefaultDice(generateDefaultDiceState());
     }
-
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [isRolling]);
+  }, []); // Empty dependency array ensures this only runs once on mount
 
   if (!(attacker && defender)) {
     return (
@@ -134,60 +98,38 @@ export default function BattleScreen() {
     );
   }
 
-  const handleRollDice = async () => {
-    const cannotRoll = !canRollDice;
-    const missingPlayers = !(attacker && defender);
+  const handleBattleResult = (result: DiceComparisonResult) => {
+    // Update army counts
+    updateArmyCounts(result.attackerLosses, result.defenderLosses);
 
-    if (cannotRoll || missingPlayers) {
+    // Set result message
+    const message = formatResult(result, attacker?.name ?? "", defender?.name ?? "");
+    setResultMessage(message);
+
+    // Determine round winner for card glow effects
+
+    // Check if battle is over
+    setTimeout(() => {
+      if (!isBattleOver()) {
+        return;
+      }
+
+      const winner = getBattleWinner();
+      const winnerName = winner === "attacker" ? (attacker?.name ?? "") : (defender?.name ?? "");
+      const messageKey = winner === "attacker" ? "attackerWins" : "defenderWins";
+      setResultMessage(t(messageKey).replace("{{name}}", winnerName));
+    }, 100);
+  };
+
+  const handleRollDice = async () => {
+    if (!(canRollDice && attacker && defender)) {
       return;
     }
 
     try {
-      setRoundWinner(null);
       setResultMessage(t("rolling"));
 
-      // Initialize rolling dice with current values to prevent blinking
-      const currentDisplay = diceDisplay || defaultDice;
-      if (currentDisplay) {
-        setRollingDice(currentDisplay);
-      }
-
-      await rollDice(attacker.armies, defender.armies, (result: DiceComparisonResult) => {
-        // Update army counts
-        updateArmyCounts(result.attackerLosses, result.defenderLosses);
-
-        // Set result message
-        const message = formatResult(result, attacker.name, defender.name);
-        setResultMessage(message);
-
-        // Determine round winner for card glow effects
-        const attackerLostMore = result.attackerLosses > result.defenderLosses;
-        const defenderLostMore = result.defenderLosses > result.attackerLosses;
-
-        if (attackerLostMore) {
-          setRoundWinner("defender");
-        } else if (defenderLostMore) {
-          setRoundWinner("attacker");
-        } else {
-          setRoundWinner("tie");
-        }
-
-        // Check if battle is over
-        setTimeout(() => {
-          const battleIsOver = isBattleOver();
-
-          if (battleIsOver) {
-            const winner = getBattleWinner();
-            const attackerWon = winner === "attacker";
-
-            if (attackerWon) {
-              setResultMessage(t("attackerWins").replace("{{name}}", attacker.name));
-            } else {
-              setResultMessage(t("defenderWins").replace("{{name}}", defender.name));
-            }
-          }
-        }, 100);
-      });
+      await rollDice(attacker.armies, defender.armies, handleBattleResult);
     } catch (error) {
       console.error("Battle error:", error);
       setResultMessage(t("battleError"));
@@ -195,31 +137,22 @@ export default function BattleScreen() {
   };
 
   const handleWithdraw = () => {
-    const isConfirming = showWithdrawConfirmation;
-
-    if (isConfirming) {
+    if (showWithdrawConfirmation) {
       withdraw();
       setShowWithdrawConfirmation(false);
-    } else {
-      setShowWithdrawConfirmation(true);
-      setTimeout(() => setShowWithdrawConfirmation(false), 3000);
+      return;
     }
+
+    setShowWithdrawConfirmation(true);
+    setTimeout(() => setShowWithdrawConfirmation(false), 3000);
   };
 
-  const handleNewBattle = () => {
-    startNewBattle();
-  };
+  const handleNewBattle = () => startNewBattle();
 
   const diceDisplay = getDiceDisplay();
   const battleIsOver = isBattleOver();
   const canRollDice = canRoll() && !battleIsOver;
-  const showRollingDice = isRolling && rollingDice;
-  const showStaticDice = !isRolling && (diceDisplay || defaultDice);
-  const currentDiceDisplay = showRollingDice
-    ? rollingDice
-    : showStaticDice
-      ? diceDisplay || defaultDice
-      : null;
+  const currentDiceDisplay = diceDisplay || defaultDice;
 
   return (
     <div className="screen-layout battle-screen">
@@ -229,9 +162,6 @@ export default function BattleScreen() {
           playerColor={attacker.color}
           armies={attacker.armies}
           initialArmies={attacker.initialArmies}
-          isWinner={roundWinner === "attacker"}
-          isLoser={roundWinner === "defender"}
-          isTie={roundWinner === "tie"}
         />
 
         <PlayerCard
@@ -239,71 +169,54 @@ export default function BattleScreen() {
           playerColor={defender.color}
           armies={defender.armies}
           initialArmies={defender.initialArmies}
-          isWinner={roundWinner === "defender"}
-          isLoser={roundWinner === "attacker"}
-          isTie={roundWinner === "tie"}
         />
       </div>
 
       {/* Dice Display */}
-      <div
+      <button
         className="dice-container"
         onClick={canRollDice ? handleRollDice : undefined}
-        onKeyDown={(e) => {
-          const isEnterOrSpace = e.key === "Enter" || e.key === " ";
-          const shouldRoll = canRollDice && isEnterOrSpace;
-
-          if (shouldRoll) {
-            e.preventDefault();
-            handleRollDice();
-          }
-        }}
         style={{ cursor: canRollDice ? "pointer" : "default" }}
-        role="button"
-        tabIndex={canRollDice ? 0 : -1}
+        disabled={!canRollDice}
         aria-label={canRollDice ? t("rollDice") : t("battleOver")}
-        aria-disabled={!canRollDice}
+        type="button"
       >
         {currentDiceDisplay && (
           <div className="dice-display">
             <div className="dice-row">
-              {currentDiceDisplay.attackerDice.map(
-                (die: { value: number; isWinner: boolean }, index: number) => (
-                  <div
-                    key={index}
-                    className={`die attacker-die ${die.isWinner ? "winner" : ""} ${isRolling ? "rolling" : ""}`}
-                    style={{
-                      backgroundColor: "#e74c3c",
-                      color: "white",
-                      borderColor: "#c0392b",
-                    }}
-                  >
-                    {die.value}
-                  </div>
-                )
-              )}
+              {currentDiceDisplay.attackerDice.map((die, index) => (
+                <div
+                  key={`attacker-die-${index}-${die.value}`}
+                  className="die attacker-die"
+                  style={{
+                    backgroundColor: "#e74c3c",
+                    color: "white",
+                    borderColor: "#c0392b",
+                  }}
+                >
+                  {die.value}
+                </div>
+              ))}
             </div>
             <div className="vs-divider">VS</div>
             <div className="dice-row">
-              {currentDiceDisplay.defenderDice.map(
-                (die: { value: number; isWinner: boolean }, index: number) => (
-                  <div
-                    key={index}
-                    className={`die defender-die ${die.isWinner ? "winner" : ""} ${isRolling ? "rolling" : ""}`}
-                    style={{
-                      backgroundColor: "#3498db",
-                      color: "white",
-                      borderColor: "#2980b9",
-                    }}
-                  >
-                    {die.value}
-                  </div>
-                )
-              )}
+              {currentDiceDisplay.defenderDice.map((die, index) => (
+                <div
+                  key={`defender-die-${index}-${die.value}`}
+                  className="die defender-die"
+                  style={{
+                    backgroundColor: "#3498db",
+                    color: "white",
+                    borderColor: "#2980b9",
+                  }}
+                >
+                  {die.value}
+                </div>
+              ))}
             </div>
           </div>
         )}
-      </div>
+      </button>
 
       {/* Controls Section */}
       <div className="battle-controls">

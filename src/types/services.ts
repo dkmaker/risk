@@ -48,7 +48,7 @@ export interface StorageService extends BaseService {
   /** Get storage size in bytes */
   getSize(): number;
   /** Storage event callback */
-  onStorageChange?: (key: string, newValue: any, oldValue: any) => void;
+  onStorageChange?: (key: string, newValue: unknown, oldValue: unknown) => void;
 }
 
 /**
@@ -234,7 +234,7 @@ export const SOUND_IDS = {
  */
 export interface AnalyticsService extends BaseService {
   /** Track event */
-  trackEvent(eventName: string, properties?: Record<string, any>): void;
+  trackEvent(eventName: string, properties?: Record<string, unknown>): void;
   /** Track screen view */
   trackScreenView(screenName: string): void;
   /** Track battle result */
@@ -244,7 +244,7 @@ export interface AnalyticsService extends BaseService {
   /** Track language change */
   trackLanguageChange(language: Language): void;
   /** Set user properties */
-  setUserProperties(properties: Record<string, any>): void;
+  setUserProperties(properties: Record<string, unknown>): void;
 }
 
 /**
@@ -359,7 +359,7 @@ export interface ServiceConfig {
   /** Service enabled */
   enabled: boolean;
   /** Service configuration options */
-  options?: Record<string, any>;
+  options?: Record<string, unknown>;
 }
 
 /**

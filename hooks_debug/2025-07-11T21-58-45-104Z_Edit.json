@@ -1,0 +1,106 @@
+{
+  "timestamp": "2025-07-11T21:58:45.104Z",
+  "input": {
+    "session_id": "c526607e-bb31-48b1-9b3e-ca366485238b",
+    "transcript_path": "/home/cp/.claude/projects/-home-cp-code-dkmaker-risk-dice/c526607e-bb31-48b1-9b3e-ca366485238b.jsonl",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Edit",
+    "tool_input": {
+      "file_path": "/home/cp/code/dkmaker/risk-dice/src/styles/main.css",
+      "old_string": "/* Utility Styles */\n@import \"./utilities/animations.css\";\n@import \"./utilities/responsive.css\";",
+      "new_string": "/* Utility Styles */\n@import \"./utilities/responsive.css\";"
+    },
+    "tool_response": {
+      "filePath": "/home/cp/code/dkmaker/risk-dice/src/styles/main.css",
+      "oldString": "/* Utility Styles */\n@import \"./utilities/animations.css\";\n@import \"./utilities/responsive.css\";",
+      "newString": "/* Utility Styles */\n@import \"./utilities/responsive.css\";",
+      "originalFile": "/**\n * Main CSS file for Risk Dice Battle\n * Organized modular CSS architecture\n */\n\n/* Base Styles */\n@import \"./base/variables.css\";\n@import \"./base/reset.css\";\n@import \"./base/layout.css\";\n\n/* Component Styles */\n@import \"./components/header.css\";\n@import \"./components/buttons.css\";\n@import \"./components/player-setup.css\";\n@import \"./components/player-selection.css\";\n@import \"./components/army-selection.css\";\n@import \"./components/battle-screen.css\";\n@import \"./components/modals.css\";\n\n/* Utility Styles */\n@import \"./utilities/animations.css\";\n@import \"./utilities/responsive.css\";\n",
+      "structuredPatch": [
+        {
+          "oldStart": 18,
+          "oldLines": 5,
+          "newStart": 18,
+          "newLines": 4,
+          "lines": [
+            " @import \"./components/modals.css\";",
+            " ",
+            " /* Utility Styles */",
+            "-@import \"./utilities/animations.css\";",
+            " @import \"./utilities/responsive.css\";"
+          ]
+        }
+      ],
+      "userModified": false,
+      "replaceAll": false
+    }
+  },
+  "startTime": "2025-07-11T21:58:41.424Z",
+  "steps": [
+    {
+      "step": "initial_check",
+      "lintResult": {
+        "success": true
+      },
+      "tsResult": {
+        "success": true
+      },
+      "cssResult": {
+        "success": true,
+        "output": "",
+        "json": []
+      },
+      "hadIssues": false
+    },
+    {
+      "step": "format",
+      "jsResult": {
+        "success": true
+      },
+      "cssResult": {
+        "success": true,
+        "output": "",
+        "json": []
+      }
+    },
+    {
+      "step": "lint_pass1",
+      "result": {
+        "success": true
+      }
+    },
+    {
+      "step": "typescript_check",
+      "result": {
+        "success": true
+      }
+    },
+    {
+      "step": "final_lint_check",
+      "jsResult": {
+        "success": true
+      },
+      "cssResult": {
+        "success": true,
+        "output": "",
+        "json": []
+      }
+    }
+  ],
+  "errors": [],
+  "finalResult": "Success - no issues found",
+  "modifiedFiles": {
+    "jsFiles": [],
+    "cssFiles": [
+      "/home/cp/code/dkmaker/risk-dice/src/styles/main.css"
+    ],
+    "allFiles": [
+      "/home/cp/code/dkmaker/risk-dice/src/styles/main.css"
+    ]
+  },
+  "parsedIssues": {
+    "biomeIssues": [],
+    "tsIssues": [],
+    "cssIssues": [],
+    "aiPrompts": []
+  }
+}

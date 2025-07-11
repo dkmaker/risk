@@ -82,8 +82,6 @@ export interface BattlePlayerCardProps extends BaseComponentProps {
   showDiceInfo?: boolean;
   /** Card glow effect */
   glow?: "winner" | "loser" | "tie" | "none";
-  /** Animation state */
-  animating?: boolean;
 }
 
 /**
@@ -162,8 +160,6 @@ export interface DiceProps extends BaseComponentProps {
   winner?: boolean;
   /** Whether dice is a loser */
   loser?: boolean;
-  /** Animation delay in milliseconds */
-  animationDelay?: number;
   /** Dice size */
   size?: "small" | "medium" | "large";
 }
@@ -178,8 +174,6 @@ export interface DiceRollDisplayProps extends BaseComponentProps {
   defenderRoll: DiceRoll;
   /** Whether to show results */
   showResults?: boolean;
-  /** Animation state */
-  animating?: boolean;
 }
 
 /**
@@ -272,10 +266,6 @@ export interface SettingsScreenProps extends BaseComponentProps {
   soundEnabled: boolean;
   /** Sound toggle handler */
   onSoundToggle: (enabled: boolean) => void;
-  /** Animation speed */
-  animationSpeed: number;
-  /** Animation speed change handler */
-  onAnimationSpeedChange: (speed: number) => void;
 }
 
 /**
@@ -329,31 +319,6 @@ export interface LoadingSpinnerProps extends BaseComponentProps {
   /** Spinner color */
   color?: "primary" | "secondary" | "light" | "dark";
 }
-
-/**
- * Animation timing types
- */
-export interface AnimationTiming {
-  /** Animation duration in milliseconds */
-  duration: number;
-  /** Animation delay in milliseconds */
-  delay: number;
-  /** Animation easing function */
-  easing: string;
-}
-
-/**
- * Default animation timings
- */
-export const ANIMATION_TIMINGS: Record<string, AnimationTiming> = {
-  diceRoll: { duration: 500, delay: 0, easing: "ease-in-out" },
-  winnerHighlight: { duration: 300, delay: 600, easing: "ease-out" },
-  cardGlow: { duration: 1500, delay: 0, easing: "ease-in-out" },
-  screenTransition: { duration: 300, delay: 0, easing: "ease-in-out" },
-  buttonPress: { duration: 150, delay: 0, easing: "ease-out" },
-  fadeIn: { duration: 300, delay: 0, easing: "ease-in" },
-  fadeOut: { duration: 200, delay: 0, easing: "ease-out" },
-} as const;
 
 /**
  * Responsive breakpoints

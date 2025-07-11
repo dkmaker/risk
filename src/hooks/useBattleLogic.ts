@@ -1,5 +1,5 @@
 /**
- * useBattleLogic - Custom hook for battle mechanics and dice rolling
+ * useBattleLogic - Custom hook for battle mechanics
  * Provides interface to BattleService with state management for battle rounds
  */
 
@@ -7,64 +7,33 @@ import { useState } from "preact/hooks";
 import { type DiceComparisonResult, battleService } from "../services/BattleService";
 
 export interface BattleState {
-  isRolling: boolean;
   lastResult: DiceComparisonResult | null;
   roundHistory: DiceComparisonResult[];
-  animationPhase: "idle" | "rolling" | "showing-results" | "complete";
 }
 
 export function useBattleLogic() {
   const [battleState, setBattleState] = useState<BattleState>({
-    isRolling: false,
     lastResult: null,
     roundHistory: [],
-    animationPhase: "idle",
   });
 
   /**
-   * Execute a battle round with animation timing
+   * Execute a battle round
    */
   const rollDice = async (
     attackerArmies: number,
     defenderArmies: number,
     onComplete?: (result: DiceComparisonResult) => void
   ): Promise<DiceComparisonResult> => {
-    setBattleState((prev) => ({
-      ...prev,
-      isRolling: true,
-      animationPhase: "rolling",
-    }));
-
-    // Simulate dice rolling animation delay (2 seconds)
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
     const result = battleService.executeBattleRound(attackerArmies, defenderArmies);
 
     setBattleState((prev) => ({
       ...prev,
-      isRolling: false,
       lastResult: result,
       roundHistory: [...prev.roundHistory, result],
-      animationPhase: "showing-results",
     }));
 
-    // Show results phase
-    await new Promise((resolve) => setTimeout(resolve, 600));
-
-    setBattleState((prev) => ({
-      ...prev,
-      animationPhase: "complete",
-    }));
-
-    // Final delay before enabling next roll
-    setTimeout(() => {
-      setBattleState((prev) => ({
-        ...prev,
-        animationPhase: "idle",
-      }));
-      onComplete?.(result);
-    }, 500);
-
+    onComplete?.(result);
     return result;
   };
 
@@ -73,10 +42,8 @@ export function useBattleLogic() {
    */
   const resetBattle = (): void => {
     setBattleState({
-      isRolling: false,
       lastResult: null,
       roundHistory: [],
-      animationPhase: "idle",
     });
   };
 
@@ -109,29 +76,19 @@ export function useBattleLogic() {
    * Get dice display data for current result
    */
   const getDiceDisplay = () => {
-    const hasResult = battleState.lastResult !== null;
-
-    if (!hasResult) {
+    if (!battleState.lastResult) {
       return null;
     }
 
-    const { attackerDice, defenderDice, comparisons } = battleState.lastResult!;
+    const { attackerDice, defenderDice } = battleState.lastResult;
 
     return {
-      attackerDice: attackerDice.map((value: number, index: number) => {
-        const attackerWon = comparisons[index]?.winner === "attacker";
-        return {
-          value,
-          isWinner: attackerWon,
-        };
-      }),
-      defenderDice: defenderDice.map((value: number, index: number) => {
-        const defenderWon = comparisons[index]?.winner === "defender";
-        return {
-          value,
-          isWinner: defenderWon,
-        };
-      }),
+      attackerDice: attackerDice.map((value: number) => ({
+        value,
+      })),
+      defenderDice: defenderDice.map((value: number) => ({
+        value,
+      })),
     };
   };
 
@@ -139,10 +96,7 @@ export function useBattleLogic() {
    * Check if battle round can be executed
    */
   const canRoll = (): boolean => {
-    const isIdle = battleState.animationPhase === "idle";
-    const notRolling = !battleState.isRolling;
-
-    return isIdle && notRolling;
+    return true;
   };
 
   return {

@@ -1,0 +1,110 @@
+{
+  "timestamp": "2025-07-11T21:52:13.850Z",
+  "input": {
+    "session_id": "c526607e-bb31-48b1-9b3e-ca366485238b",
+    "transcript_path": "/home/cp/.claude/projects/-home-cp-code-dkmaker-risk-dice/c526607e-bb31-48b1-9b3e-ca366485238b.jsonl",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Edit",
+    "tool_input": {
+      "file_path": "/home/cp/code/dkmaker/risk-dice/src/styles/utilities/accessibility.css",
+      "old_string": ".button:focus,\n.player-select-button:focus,\n.army-button:focus {\n  outline: 3px solid rgb(74 93 58 / 50%);\n  outline-offset: 2px;\n}",
+      "new_string": ".button:focus,\n.player-select-button:focus,\n.army-button:focus {\n  outline: none;\n}"
+    },
+    "tool_response": {
+      "filePath": "/home/cp/code/dkmaker/risk-dice/src/styles/utilities/accessibility.css",
+      "oldString": ".button:focus,\n.player-select-button:focus,\n.army-button:focus {\n  outline: 3px solid rgb(74 93 58 / 50%);\n  outline-offset: 2px;\n}",
+      "newString": ".button:focus,\n.player-select-button:focus,\n.army-button:focus {\n  outline: none;\n}",
+      "originalFile": "/**\n * Accessibility and Special Cases\n * High contrast, reduced motion, and print styles\n */\n\n/* High contrast mode support */\n@media (prefers-contrast: more) {\n  .button-primary,\n  .button-danger {\n    border: 2px solid currentcolor;\n  }\n\n  .player-card {\n    border: 2px solid rgb(255 255 255 / 50%);\n  }\n\n  .die {\n    border-width: 3px;\n  }\n\n  .army-button {\n    border: 2px solid currentcolor;\n  }\n\n  .player-select-button {\n    border: 2px solid rgb(255 255 255 / 50%);\n  }\n}\n\n/* Reduced motion support */\n@media (prefers-reduced-motion: reduce) {\n  * {\n    transition-duration: 0.01ms !important;\n    animation-duration: 0.01ms !important;\n    animation-iteration-count: 1 !important;\n  }\n\n\n  .player-card::before {\n    display: none;\n  }\n\n  .army-button::before {\n    display: none;\n  }\n\n  .animate-spin,\n  .animate-pulse,\n  .animate-bounce {\n    animation: none;\n  }\n}\n\n/* Focus styles for keyboard navigation */\n*:focus {\n  outline: none;\n}\n\n.button:focus,\n.player-select-button:focus,\n.army-button:focus {\n  outline: 3px solid rgb(74 93 58 / 50%);\n  outline-offset: 2px;\n}\n\n/* Screen reader only content */\n.sr-only {\n  position: absolute;\n  width: 1px;\n  height: 1px;\n  padding: 0;\n  margin: -1px;\n  overflow: hidden;\n  white-space: nowrap;\n  border: 0;\n  clip: rect(0, 0, 0, 0);\n}\n\n/* Print styles */\n@media print {\n  .header,\n  .button-container,\n  .modal-overlay,\n  .screen-footer {\n    display: none;\n  }\n\n  .app {\n    color: #000;\n    background: #fff;\n  }\n\n  .player-card,\n  .die {\n    border: 2px solid #000 !important;\n    box-shadow: none !important;\n  }\n\n  .screen-content {\n    padding: 0;\n  }\n\n  .battle-screen {\n    padding: 0;\n  }\n\n  .dice-display {\n    gap: 1rem;\n  }\n\n  .player-info {\n    margin-bottom: 1rem;\n  }\n}\n\n/* Dark mode support (if implemented) */\n@media (prefers-color-scheme: dark) {\n  :root {\n    --color-text: #fff;\n    --color-text-light: #d1d5db;\n    --color-background: #1f2937;\n    --color-surface: #374151;\n    --background-overlay: rgb(0 0 0 / 30%);\n  }\n}\n",
+      "structuredPatch": [
+        {
+          "oldStart": 59,
+          "oldLines": 8,
+          "newStart": 59,
+          "newLines": 7,
+          "lines": [
+            " .button:focus,",
+            " .player-select-button:focus,",
+            " .army-button:focus {",
+            "-  outline: 3px solid rgb(74 93 58 / 50%);",
+            "-  outline-offset: 2px;",
+            "+  outline: none;",
+            " }",
+            " ",
+            " /* Screen reader only content */"
+          ]
+        }
+      ],
+      "userModified": false,
+      "replaceAll": false
+    }
+  },
+  "startTime": "2025-07-11T21:52:10.178Z",
+  "steps": [
+    {
+      "step": "initial_check",
+      "lintResult": {
+        "success": true
+      },
+      "tsResult": {
+        "success": true
+      },
+      "cssResult": {
+        "success": true,
+        "output": "",
+        "json": []
+      },
+      "hadIssues": false
+    },
+    {
+      "step": "format",
+      "jsResult": {
+        "success": true
+      },
+      "cssResult": {
+        "success": true,
+        "output": "",
+        "json": []
+      }
+    },
+    {
+      "step": "lint_pass1",
+      "result": {
+        "success": true
+      }
+    },
+    {
+      "step": "typescript_check",
+      "result": {
+        "success": true
+      }
+    },
+    {
+      "step": "final_lint_check",
+      "jsResult": {
+        "success": true
+      },
+      "cssResult": {
+        "success": true,
+        "output": "",
+        "json": []
+      }
+    }
+  ],
+  "errors": [],
+  "finalResult": "Success - no issues found",
+  "modifiedFiles": {
+    "jsFiles": [],
+    "cssFiles": [
+      "/home/cp/code/dkmaker/risk-dice/src/styles/utilities/accessibility.css"
+    ],
+    "allFiles": [
+      "/home/cp/code/dkmaker/risk-dice/src/styles/utilities/accessibility.css"
+    ]
+  },
+  "parsedIssues": {
+    "biomeIssues": [],
+    "tsIssues": [],
+    "cssIssues": [],
+    "aiPrompts": []
+  }
+}
