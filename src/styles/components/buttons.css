@@ -1,0 +1,110 @@
+/**
+ * Button Component Styles
+ * Standardized button variants and sizes
+ */
+
+.button {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius-sm);
+  border: none;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  outline: none;
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  text-decoration: none;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Button Variants */
+.button-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(74, 93, 58, 0.3);
+}
+
+.button-primary:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(74, 93, 58, 0.4);
+  transform: translate3d(0, -2px, 0);
+}
+
+.button-primary:active:not(:disabled) {
+  transform: translate3d(0, 0, 0);
+  box-shadow: 0 2px 8px rgba(74, 93, 58, 0.3);
+}
+
+.button-secondary {
+  background: white;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+
+.button-secondary:hover:not(:disabled) {
+  background: #f8faf8;
+  transform: translate3d(0, -1px, 0);
+}
+
+.button-secondary:active:not(:disabled) {
+  transform: translate3d(0, 0, 0);
+}
+
+.button-danger {
+  background: linear-gradient(135deg, var(--color-error) 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.button-danger:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  transform: translate3d(0, -2px, 0);
+}
+
+.button-danger:active:not(:disabled) {
+  transform: translate3d(0, 0, 0);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Button Sizes */
+.button-large {
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: 1.125rem;
+  min-height: 3.5rem;
+}
+
+.button-small {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 0.875rem;
+  min-height: 2.25rem;
+}
+
+/* Button row styles */
+.button-row {
+  display: flex;
+  gap: var(--spacing-lg);
+  width: 100%;
+  justify-content: center;
+  margin-top: var(--spacing-lg);
+}
+
+.button-container {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}

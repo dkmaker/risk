@@ -21,7 +21,7 @@ export default function Header({ icon, onHomeClick, onSettingsClick }: HeaderPro
 
   return (
     <header className="header">
-      <button className="header-button" onClick={onHomeClick} aria-label="Home">
+      <button type="button" className="header-button" onClick={onHomeClick} aria-label="Home">
         🏠
       </button>
 
@@ -29,7 +29,12 @@ export default function Header({ icon, onHomeClick, onSettingsClick }: HeaderPro
         {renderIcon()}
       </div>
 
-      <button className="header-button" onClick={onSettingsClick} aria-label="Settings">
+      <button
+        type="button"
+        className="header-button"
+        onClick={onSettingsClick}
+        aria-label="Settings"
+      >
         ⚙️
       </button>
     </header>

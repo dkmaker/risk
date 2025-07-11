@@ -1,5 +1,4 @@
 import type { Player } from "../types/game";
-import Button from "./shared/Button";
 
 interface PlayerSelectionProps {
   players: Player[];
@@ -17,29 +16,29 @@ export default function PlayerSelection({
   const availablePlayers = players.filter((_, index) => index !== excludePlayerIndex);
 
   return (
-    <div className="screen-content">
-      <div className="header-content">
+    <div className="screen-layout">
+      <div className="screen-header">
         <h1>{title}</h1>
       </div>
 
-      <div className="player-selection-list" id="player-selection-list">
-        {availablePlayers.map((player) => {
-          // Find the original index in the full players array
-          const playerIndex = players.findIndex((p) => p === player);
+      <div className="screen-content">
+        <div className="player-selection-grid">
+          {availablePlayers.map((player) => {
+            // Find the original index in the full players array
+            const playerIndex = players.findIndex((p) => p === player);
 
-          return (
-            <Button
-              key={`${player.colorName}-${playerIndex}`}
-              variant="primary"
-              size="large"
-              className="player-select-btn"
-              onClick={() => onPlayerSelect(player, playerIndex)}
-            >
-              <span className="player-name-display">{player.name}</span>
-              <div className="player-color-indicator" style={{ backgroundColor: player.color }} />
-            </Button>
-          );
-        })}
+            return (
+              <button
+                key={`${player.colorName}-${playerIndex}`}
+                className="player-select-button"
+                style={{ backgroundColor: player.color }}
+                onClick={() => onPlayerSelect(player, playerIndex)}
+              >
+                {player.name}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -35,8 +35,8 @@ export function useBattleLogic() {
       animationPhase: "rolling",
     }));
 
-    // Simulate dice rolling animation delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Simulate dice rolling animation delay (2 seconds)
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const result = battleService.executeBattleRound(attackerArmies, defenderArmies);
 

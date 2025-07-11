@@ -43,7 +43,7 @@ export default function ArmySelection({
           <Button
             key={i}
             variant={selectedArmies === i ? "primary" : "secondary"}
-            className={`army-btn ${selectedArmies === i ? "selected" : ""}`}
+            className={`army-button ${selectedArmies === i ? "selected" : ""}`}
             onClick={() => handleArmySelect(i)}
           >
             {i}
@@ -56,7 +56,7 @@ export default function ArmySelection({
           <Button
             key="next"
             variant="secondary"
-            className="army-btn"
+            className="army-button"
             onClick={() => handlePageChange(1)}
           >
             &gt;
@@ -98,7 +98,7 @@ export default function ArmySelection({
           <Button
             key="next"
             variant="secondary"
-            className="army-btn"
+            className="army-button"
             onClick={() => handlePageChange(1)}
           >
             &gt;
@@ -129,14 +129,14 @@ export default function ArmySelection({
   const labelKey = playerType === "attacker" ? "numberOfArmiesAttack" : "numberOfArmiesDefend";
 
   return (
-    <div className="screen" style={{ background: backgroundGradient }}>
-      <div className="screen-content">
-        <div className="header-content">
-          <h1>{playerName}</h1>
-          <h2>{t(labelKey)}</h2>
-        </div>
+    <div className="screen-layout" style={{ background: backgroundGradient }}>
+      <div className="screen-header">
+        <h1>{playerName}</h1>
+        <h2>{t(labelKey)}</h2>
+      </div>
 
-        <div className="army-selection-grid" id={`${playerType}-army-buttons`}>
+      <div className="screen-content">
+        <div className="army-buttons" id={`${playerType}-army-buttons`}>
           {renderArmyButtons()}
         </div>
       </div>

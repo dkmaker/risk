@@ -1,9 +1,11 @@
-import { useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import "virtual:uno.css";
+import "./styles/main.css";
 import ArmySelection from "./components/ArmySelection";
 import BattleScreen from "./components/BattleScreen";
 import PlayerSelection from "./components/PlayerSelection";
 import PlayerSetup from "./components/PlayerSetup";
+import SettingsModal from "./components/SettingsModal";
 import Header from "./components/shared/Header";
 import { useGameState } from "./hooks/useGameState";
 import { useLocalStorage } from "./hooks/useLocalStorage";
@@ -21,17 +23,25 @@ export default function App() {
     selectDefender,
     setAttackerArmies,
     setDefenderArmies,
-    resetGame,
   } = useGameState();
 
   const { players: savedPlayers, isLoaded, savePlayers } = useLocalStorage();
 
-  // Load saved players on startup
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [manualNavigation, setManualNavigation] = useState(false);
+
+  // Set dark theme as default
   useEffect(() => {
-    if (isLoaded && savedPlayers.length >= 2) {
+    document.documentElement.setAttribute("data-theme", "dark");
+  }, []);
+
+  // Load saved players on startup - go to attacker selection if players exist
+  useEffect(() => {
+    if (isLoaded && savedPlayers.length >= 2 && currentScreen === "setup" && !manualNavigation) {
+      // Auto-initialize game with saved players and go to attacker selection
       initializeGame(savedPlayers);
     }
-  }, [isLoaded, savedPlayers, initializeGame]);
+  }, [isLoaded, savedPlayers, currentScreen, manualNavigation]);
 
   const getHeaderIcon = (): HeaderIcon => {
     switch (currentScreen) {
@@ -72,41 +82,45 @@ export default function App() {
   };
 
   const handleHomeClick = () => {
-    resetGame();
+    // Go back to attacker selection (start new battle)
+    if (players.length >= 2) {
+      setManualNavigation(true);
+      initializeGame(players);
+    }
   };
 
   const handleSettingsClick = () => {
-    alert("Settings coming in Phase 4!");
+    setIsSettingsOpen(true);
+  };
+
+  const handleManualNavigation = () => {
+    setManualNavigation(true);
   };
 
   const renderCurrentScreen = () => {
     switch (currentScreen) {
       case "setup":
-        return <PlayerSetup onPlayersReady={handlePlayersReady} existingPlayers={players} />;
+        return <PlayerSetup onPlayersReady={handlePlayersReady} existingPlayers={savedPlayers} />;
 
       case "attacker-selection":
         return (
-          <div className="screen active">
-            <PlayerSelection
-              players={players}
-              title={t("whoIsAttacking")}
-              onPlayerSelect={handleAttackerSelect}
-            />
-          </div>
+          <PlayerSelection
+            players={players}
+            title={t("whoIsAttacking")}
+            onPlayerSelect={handleAttackerSelect}
+          />
         );
 
       case "defender-selection":
         return (
-          <div className="screen active">
-            <PlayerSelection
-              players={players}
-              title={t("whoIsDefending")}
-              onPlayerSelect={handleDefenderSelect}
-              {...(attacker?.playerIndex !== undefined && {
-                excludePlayerIndex: attacker.playerIndex,
-              })}
-            />
-          </div>
+          <PlayerSelection
+            players={players}
+            title={t("whoIsDefending")}
+            onPlayerSelect={handleDefenderSelect}
+            {...(attacker?.playerIndex !== undefined && {
+              excludePlayerIndex: attacker.playerIndex,
+            })}
+          />
         );
 
       case "attacker-armies":
@@ -147,11 +161,11 @@ export default function App() {
 
       <main className="main-content">{renderCurrentScreen()}</main>
 
-      <div className="phase-indicator">
-        <strong>Phase 3: Game Logic Integration</strong>
-        <br />
-        Current Screen: {currentScreen}
-      </div>
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onManualNavigation={handleManualNavigation}
+      />
     </div>
   );
 }

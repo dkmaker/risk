@@ -10,41 +10,11 @@ import { useTranslation } from "../hooks/useTranslation";
 import type { DiceComparisonResult } from "../services/BattleService";
 import Button from "./shared/Button";
 
-interface DiceDisplayProps {
-  dice: Array<{ value: number; isWinner: boolean }>;
-  label: string;
-  playerColor: string;
-}
-
-function DiceDisplay({ dice, label, playerColor }: DiceDisplayProps) {
-  return (
-    <div className="dice-section">
-      <h3 className="dice-label" style={{ color: playerColor }}>
-        {label}
-      </h3>
-      <div className="dice-row">
-        {dice.map((die, index) => (
-          <div
-            key={index}
-            className={`die ${die.isWinner ? "winner" : "loser"}`}
-            style={{
-              borderColor: die.isWinner ? "#2ecc71" : "#e74c3c",
-            }}
-          >
-            {die.value}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 interface PlayerCardProps {
   playerName: string;
   playerColor: string;
   armies: number;
   initialArmies: number;
-  role: "attacker" | "defender";
   isWinner?: boolean;
   isLoser?: boolean;
   isTie?: boolean;
@@ -55,13 +25,10 @@ function PlayerCard({
   playerColor,
   armies,
   initialArmies,
-  role,
   isWinner,
   isLoser,
   isTie,
 }: PlayerCardProps) {
-  const { t } = useTranslation();
-
   let cardClass = "player-card";
   if (isWinner) cardClass += " card-winner";
   if (isLoser) cardClass += " card-loser";
@@ -69,13 +36,11 @@ function PlayerCard({
 
   return (
     <div className={cardClass} style={{ backgroundColor: playerColor }}>
-      <h3 className="player-role">{role === "attacker" ? t("attacker") : t("defender")}</h3>
       <div className="player-name">{playerName}</div>
       <div className="army-count">
         <span className="current-armies">{armies}</span>
         <span className="total-armies">/ {initialArmies}</span>
       </div>
-      <div className="army-label">{t(armies === 1 ? "army" : "armies")}</div>
     </div>
   );
 }
@@ -89,7 +54,8 @@ export default function BattleScreen() {
     isBattleOver,
     getBattleWinner,
     withdraw,
-    resetGame,
+    startNewBattle,
+    goToPlayerSetup,
   } = useGameState();
 
   const { rollDice, resetBattle, formatResult, getDiceDisplay, canRoll, isRolling } =
@@ -98,32 +64,89 @@ export default function BattleScreen() {
   const [resultMessage, setResultMessage] = useState<string>("");
   const [showWithdrawConfirmation, setShowWithdrawConfirmation] = useState(false);
   const [roundWinner, setRoundWinner] = useState<"attacker" | "defender" | "tie" | null>(null);
+  const [defaultDice, setDefaultDice] = useState<{
+    attackerDice: Array<{ value: number; isWinner: boolean }>;
+    defenderDice: Array<{ value: number; isWinner: boolean }>;
+  } | null>(null);
+  const [rollingDice, setRollingDice] = useState<{
+    attackerDice: Array<{ value: number; isWinner: boolean }>;
+    defenderDice: Array<{ value: number; isWinner: boolean }>;
+  } | null>(null);
 
-  // Reset battle state when component mounts
+  // Reset battle state when component mounts and show initial dice
   useEffect(() => {
     resetBattle();
-    setResultMessage(t("clickRollToStart"));
+    setResultMessage("Touch dice to roll!");
     setRoundWinner(null);
+    // Set default dice
+    setDefaultDice({
+      attackerDice: [
+        { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
+        { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
+        { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
+      ],
+      defenderDice: [
+        { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
+        { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
+      ],
+    });
   }, []);
+
+  // Update dice numbers rapidly during rolling animation
+  useEffect(() => {
+    let interval: number;
+
+    if (isRolling) {
+      interval = setInterval(() => {
+        setRollingDice({
+          attackerDice: [
+            { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
+            { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
+            { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
+          ],
+          defenderDice: [
+            { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
+            { value: Math.floor(Math.random() * 6) + 1, isWinner: false },
+          ],
+        });
+      }, 100); // Change numbers every 100ms
+    } else {
+      setRollingDice(null);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isRolling]);
 
   if (!attacker || !defender) {
     return (
-      <div className="screen active">
-        <div className="screen-content">
+      <div className="screen-layout">
+        <div className="screen-header">
           <h1>{t("battleError")}</h1>
+        </div>
+        <div className="screen-content">
           <p>{t("battleSetupError")}</p>
-          <Button onClick={resetGame}>{t("backToSetup")}</Button>
+        </div>
+        <div className="screen-footer">
+          <Button onClick={goToPlayerSetup}>{t("backToSetup")}</Button>
         </div>
       </div>
     );
   }
 
   const handleRollDice = async () => {
-    if (!canRoll() || !attacker || !defender) return;
+    if (!canRollDice || !attacker || !defender) return;
 
     try {
       setRoundWinner(null);
       setResultMessage(t("rolling"));
+
+      // Initialize rolling dice with current values to prevent blinking
+      const currentDisplay = diceDisplay || defaultDice;
+      if (currentDisplay) {
+        setRollingDice(currentDisplay);
+      }
 
       await rollDice(attacker.armies, defender.armies, (result: DiceComparisonResult) => {
         // Update army counts
@@ -171,67 +194,83 @@ export default function BattleScreen() {
   };
 
   const handleNewBattle = () => {
-    resetGame();
+    startNewBattle();
   };
 
   const diceDisplay = getDiceDisplay();
   const battleIsOver = isBattleOver();
   const canRollDice = canRoll() && !battleIsOver;
+  const currentDiceDisplay = isRolling ? rollingDice : diceDisplay || defaultDice;
 
   return (
-    <div className="screen active">
-      <div className="screen-content">
-        <h1>{t("battle")}</h1>
+    <div className="screen-layout battle-screen">
+      <div className="player-info">
+        <PlayerCard
+          playerName={attacker.name}
+          playerColor={attacker.color}
+          armies={attacker.armies}
+          initialArmies={attacker.initialArmies}
+          isWinner={roundWinner === "attacker"}
+          isLoser={roundWinner === "defender"}
+          isTie={roundWinner === "tie"}
+        />
 
-        <div className="player-info">
-          <PlayerCard
-            playerName={attacker.name}
-            playerColor={attacker.color}
-            armies={attacker.armies}
-            initialArmies={attacker.initialArmies}
-            role="attacker"
-            isWinner={roundWinner === "attacker"}
-            isLoser={roundWinner === "defender"}
-            isTie={roundWinner === "tie"}
-          />
+        <PlayerCard
+          playerName={defender.name}
+          playerColor={defender.color}
+          armies={defender.armies}
+          initialArmies={defender.initialArmies}
+          isWinner={roundWinner === "defender"}
+          isLoser={roundWinner === "attacker"}
+          isTie={roundWinner === "tie"}
+        />
+      </div>
 
-          <PlayerCard
-            playerName={defender.name}
-            playerColor={defender.color}
-            armies={defender.armies}
-            initialArmies={defender.initialArmies}
-            role="defender"
-            isWinner={roundWinner === "defender"}
-            isLoser={roundWinner === "attacker"}
-            isTie={roundWinner === "tie"}
-          />
-        </div>
-
-        {/* Dice Display */}
-        <div className="dice-container">
-          {diceDisplay && (
-            <div className="dice-display">
-              <DiceDisplay
-                dice={diceDisplay.attackerDice}
-                label={`${attacker.name} (${t("attacker")})`}
-                playerColor={attacker.color}
-              />
-              <DiceDisplay
-                dice={diceDisplay.defenderDice}
-                label={`${defender.name} (${t("defender")})`}
-                playerColor={defender.color}
-              />
+      {/* Dice Display */}
+      <div
+        className="dice-container"
+        onClick={canRollDice ? handleRollDice : undefined}
+        style={{ cursor: canRollDice ? "pointer" : "default" }}
+      >
+        {currentDiceDisplay && (
+          <div className="dice-display">
+            <div className="dice-row">
+              {currentDiceDisplay.attackerDice.map((die, index) => (
+                <div
+                  key={index}
+                  className={`die attacker-die ${die.isWinner ? "winner" : ""} ${isRolling ? "rolling" : ""}`}
+                  style={{
+                    backgroundColor: "#e74c3c",
+                    color: "white",
+                    borderColor: "#c0392b",
+                  }}
+                >
+                  {die.value}
+                </div>
+              ))}
             </div>
-          )}
-
-          {isRolling && (
-            <div className="rolling-animation">
-              <div className="rolling-dice">🎲 🎲</div>
-              <p>{t("rolling")}</p>
+            <div className="vs-divider">VS</div>
+            <div className="dice-row">
+              {currentDiceDisplay.defenderDice.map((die, index) => (
+                <div
+                  key={index}
+                  className={`die defender-die ${die.isWinner ? "winner" : ""} ${isRolling ? "rolling" : ""}`}
+                  style={{
+                    backgroundColor: "#3498db",
+                    color: "white",
+                    borderColor: "#2980b9",
+                  }}
+                >
+                  {die.value}
+                </div>
+              ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
 
+      {/* Controls Section */}
+      <div className="battle-controls">
         {/* Result Message */}
         <div className="result-message">
           <p>{resultMessage}</p>
@@ -244,37 +283,14 @@ export default function BattleScreen() {
               {t("newBattle")}
             </Button>
           ) : (
-            <>
-              <Button
-                onClick={handleRollDice}
-                disabled={!canRollDice}
-                variant="primary"
-                size="large"
-              >
-                {isRolling ? t("rolling") : t("rollDice")}
-              </Button>
-
-              <Button
-                onClick={handleWithdraw}
-                variant={showWithdrawConfirmation ? "danger" : "secondary"}
-                size="large"
-              >
-                {showWithdrawConfirmation ? t("confirmWithdraw") : t("withdraw")}
-              </Button>
-            </>
+            <Button
+              onClick={handleWithdraw}
+              variant={showWithdrawConfirmation ? "danger" : "secondary"}
+              size="large"
+            >
+              {showWithdrawConfirmation ? t("confirmWithdraw") : t("withdraw")}
+            </Button>
           )}
-        </div>
-
-        {/* Battle Statistics */}
-        <div className="battle-stats">
-          <p>
-            <strong>{attacker.name}:</strong> {attacker.armies} / {attacker.initialArmies}{" "}
-            {t("armies")}
-          </p>
-          <p>
-            <strong>{defender.name}:</strong> {defender.armies} / {defender.initialArmies}{" "}
-            {t("armies")}
-          </p>
         </div>
       </div>
     </div>

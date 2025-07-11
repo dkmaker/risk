@@ -258,6 +258,34 @@ export class GameService {
   navigateToScreen(screen: string): void {
     this.setState({ currentScreen: screen });
   }
+
+  /**
+   * Navigate back to player setup while preserving existing players
+   */
+  goToPlayerSetup(): void {
+    this.setState({
+      currentScreen: "setup",
+      attacker: null,
+      defender: null,
+      isGameActive: false,
+    });
+  }
+
+  /**
+   * Start a new battle with existing players (preserves players)
+   */
+  startNewBattle(): void {
+    if (this.state.players.length < 2) {
+      throw new Error("At least 2 players required to start new battle");
+    }
+
+    this.setState({
+      currentScreen: "attacker-selection",
+      attacker: null,
+      defender: null,
+      isGameActive: true,
+    });
+  }
 }
 
 // Singleton instance

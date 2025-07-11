@@ -154,8 +154,21 @@
       "trailingCommas": "none"
     }
   },
+  "css": {
+    "formatter": {
+      "enabled": true,
+      "indentStyle": "space",
+      "indentWidth": 2,
+      "lineEnding": "lf",
+      "lineWidth": 100,
+      "quoteStyle": "double"
+    },
+    "linter": {
+      "enabled": true
+    }
+  },
   "files": {
-    "include": ["src/**/*", "*.js", "*.ts", "*.json"],
+    "include": ["src/**/*", "*.js", "*.ts", "*.json", "*.css"],
     "ignore": ["node_modules", "dist", "public", ".git"]
   },
   "vcs": {

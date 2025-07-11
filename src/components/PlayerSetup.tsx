@@ -1,5 +1,5 @@
-import { useState } from "preact/hooks";
-import { t } from "../translations";
+import { useEffect, useState } from "preact/hooks";
+import { useTranslation } from "../hooks/useTranslation";
 import type { Player, PlayerColor, PlayerColorHex } from "../types/game";
 import { PLAYER_COLOR_MAP } from "../types/game";
 import Button from "./shared/Button";
@@ -10,7 +10,11 @@ interface PlayerSetupProps {
   existingPlayers?: Player[];
 }
 
-const PLAYER_COLORS: Array<{ key: PlayerColor; color: PlayerColorHex; nameKey: string }> = [
+const PLAYER_COLORS: Array<{
+  key: PlayerColor;
+  color: PlayerColorHex;
+  nameKey: keyof typeof import("../translations/translations").translations.en;
+}> = [
   { key: "red", color: PLAYER_COLOR_MAP.red, nameKey: "redPlayer" },
   { key: "blue", color: PLAYER_COLOR_MAP.blue, nameKey: "bluePlayer" },
   { key: "green", color: PLAYER_COLOR_MAP.green, nameKey: "greenPlayer" },
@@ -20,6 +24,7 @@ const PLAYER_COLORS: Array<{ key: PlayerColor; color: PlayerColorHex; nameKey: s
 ];
 
 export default function PlayerSetup({ onPlayersReady, existingPlayers = [] }: PlayerSetupProps) {
+  const { t } = useTranslation();
   const [playerNames, setPlayerNames] = useState<Record<PlayerColor, string>>(() => {
     const initial: Record<PlayerColor, string> = {
       red: "",
@@ -31,14 +36,35 @@ export default function PlayerSetup({ onPlayersReady, existingPlayers = [] }: Pl
     };
 
     // Restore existing player names
-    existingPlayers.forEach((player) => {
+    for (const player of existingPlayers) {
       if (player.colorName && player.colorName in initial) {
         initial[player.colorName as PlayerColor] = player.name;
       }
-    });
+    }
 
     return initial;
   });
+
+  // Update player names when existingPlayers changes
+  useEffect(() => {
+    const updated: Record<PlayerColor, string> = {
+      red: "",
+      blue: "",
+      green: "",
+      yellow: "",
+      black: "",
+      purple: "",
+    };
+
+    // Restore existing player names
+    for (const player of existingPlayers) {
+      if (player.colorName && player.colorName in updated) {
+        updated[player.colorName as PlayerColor] = player.name;
+      }
+    }
+
+    setPlayerNames(updated);
+  }, [existingPlayers]);
 
   const handleNameChange = (colorKey: PlayerColor, name: string) => {
     setPlayerNames((prev) => ({
@@ -50,7 +76,7 @@ export default function PlayerSetup({ onPlayersReady, existingPlayers = [] }: Pl
   const handleSaveAndStart = () => {
     const players: Player[] = [];
 
-    PLAYER_COLORS.forEach(({ key, color }) => {
+    for (const { key, color } of PLAYER_COLORS) {
       const name = playerNames[key].trim();
       if (name) {
         players.push({
@@ -59,7 +85,7 @@ export default function PlayerSetup({ onPlayersReady, existingPlayers = [] }: Pl
           colorName: key,
         });
       }
-    });
+    }
 
     if (players.length < 2) {
       alert(t("enterAtLeastTwoPlayers"));
@@ -70,13 +96,13 @@ export default function PlayerSetup({ onPlayersReady, existingPlayers = [] }: Pl
   };
 
   return (
-    <div className="screen active" id="player-setup">
-      <div className="screen-content">
-        <div className="header-content">
-          <h1 id="player-setup-title">{t("playerSetupTitle")}</h1>
-          <h2 id="player-setup-subtitle">{t("playerSetupSubtitle")}</h2>
-        </div>
+    <div className="screen-layout" id="player-setup">
+      <div className="screen-header">
+        <h1 id="player-setup-title">{t("playerSetupTitle")}</h1>
+        <h2 id="player-setup-subtitle">{t("playerSetupSubtitle")}</h2>
+      </div>
 
+      <div className="screen-content">
         <div className="player-grid">
           {PLAYER_COLORS.map(({ key, color, nameKey }) => (
             <PlayerColorCard
@@ -89,12 +115,12 @@ export default function PlayerSetup({ onPlayersReady, existingPlayers = [] }: Pl
             />
           ))}
         </div>
+      </div>
 
-        <div className="button-row">
-          <Button variant="primary" size="large" onClick={handleSaveAndStart} className="w-full">
-            {t("saveAndStart")}
-          </Button>
-        </div>
+      <div className="screen-footer">
+        <Button variant="primary" size="large" onClick={handleSaveAndStart} className="w-full">
+          {t("saveAndStart")}
+        </Button>
       </div>
     </div>
   );

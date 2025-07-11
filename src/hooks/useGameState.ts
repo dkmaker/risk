@@ -36,5 +36,7 @@ export function useGameState() {
     resetGame: () => gameService.resetGame(),
     withdraw: () => gameService.withdraw(),
     navigateToScreen: (screen: string) => gameService.navigateToScreen(screen),
+    goToPlayerSetup: () => gameService.goToPlayerSetup(),
+    startNewBattle: () => gameService.startNewBattle(),
   };
 }

@@ -394,7 +394,13 @@ function generateClaudeInstructions(biomeIssues, tsIssues, aiPrompts, hadInitial
   instructions += `${tsIssues.length > 0 || biomeIssues.length > 0 ? (tsIssues.length > 0 && biomeIssues.length > 0 ? "3" : "2") : "1"}. Save the file again to re-run quality checks\n\n`;
 
   instructions +=
-    "ℹ️ Note: All auto-fixable formatting and linting issues have already been resolved automatically.";
+    "ℹ️ Note: All auto-fixable formatting and linting issues have already been resolved automatically.\n";
+
+  // Add guidance for expected errors during multi-file refactoring
+  if (tsIssues.length > 0) {
+    instructions +=
+      "⚠️ IMPORTANT: If these TypeScript errors are expected during multi-file refactoring (e.g., adding a new function that will be used in the next file), you may continue with the next file. The errors should resolve once all related files are updated.\n";
+  }
 
   return instructions;
 }

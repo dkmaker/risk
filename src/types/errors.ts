@@ -5,8 +5,10 @@
  * and exception handling utilities for robust error management.
  */
 
+import type { TranslationKeys } from "../translations/translations";
 import type { BattlePlayer, BattleResult, DiceRoll, GameState, Player } from "./game";
-import type { TranslationKeyPath } from "./translations";
+
+type TranslationKeyPath = keyof TranslationKeys;
 
 /**
  * Base error interface that all errors should extend

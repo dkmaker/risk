@@ -1,0 +1,267 @@
+/**
+ * Battle Screen Component Styles
+ * Dice battle interface with player cards, dice display, and controls
+ */
+
+/* Battle screen layout */
+.battle-screen {
+  display: grid;
+  grid-template-rows: min-content 1fr min-content;
+  grid-template-areas: 
+    "player-cards"
+    "dice-area"
+    "controls";
+  gap: 0;
+  height: 100%;
+  width: 100%;
+  padding: var(--spacing-md);
+}
+
+/* Player info cards */
+.player-info {
+  grid-area: player-cards;
+  display: flex;
+  gap: var(--spacing-sm);
+  width: 100%;
+  justify-content: center;
+  padding: var(--spacing-xs);
+  align-self: start;
+}
+
+.player-info .player-card {
+  flex: 1;
+  max-width: 12rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.player-card {
+  padding: 1.5rem;
+  border-radius: var(--border-radius-lg);
+  color: white;
+  cursor: pointer;
+  transition: all var(--transition-slow);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(1px);
+}
+
+.player-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.player-card:active {
+  transform: translateY(-2px);
+}
+
+.player-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.player-card:hover::before {
+  transform: translateX(100%);
+}
+
+.player-name {
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.army-count {
+  font-size: 1.5rem;
+  font-weight: bold;
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.current-armies {
+  font-size: 2rem;
+}
+
+.total-armies {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+/* Dice container */
+.dice-container {
+  grid-area: dice-area;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.dice-display {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.dice-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.dice-label {
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.dice-row {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-sm);
+  align-items: center;
+  justify-content: center;
+}
+
+.vs-divider {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  padding: var(--spacing-sm) 0;
+}
+
+.die {
+  width: 21rem;
+  height: 21rem;
+  border-radius: var(--border-radius-lg);
+  border: 9px solid #e5e7eb;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8.25rem;
+  font-weight: bold;
+  color: #1f2937;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+  transition: all var(--transition-slow);
+}
+
+.die.rolling {
+  animation: dice-spin 2s ease-in-out;
+  opacity: 1 !important;
+}
+
+.die.winner {
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
+  transform: scale(1.1);
+}
+
+.die.loser {
+  opacity: 0.7;
+}
+
+/* Rolling animation */
+.rolling-animation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-3xl);
+}
+
+.rolling-animation p {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+/* Battle controls */
+.battle-controls {
+  grid-area: controls;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+  align-self: end;
+  padding: var(--spacing-xs);
+}
+
+.result-message {
+  text-align: center;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+
+.result-message p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.battle-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: center;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  backdrop-filter: blur(2px);
+}
+
+.battle-stats p {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.battle-stats strong {
+  color: #1f2937;
+}
+
+/* Card glow animations */
+.card-winner {
+  animation: glow-success 1.5s ease-in-out;
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.6) !important;
+}
+
+.card-loser {
+  animation: glow-error 1.5s ease-in-out;
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.6) !important;
+}
+
+.card-tie {
+  animation: glow-warning 1.5s ease-in-out;
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.6) !important;
+}

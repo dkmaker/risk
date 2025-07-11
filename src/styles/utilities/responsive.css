@@ -1,0 +1,138 @@
+/**
+ * Responsive Design Utilities
+ * Mobile-first responsive breakpoints and overrides
+ */
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .app {
+    padding: 0;
+  }
+  
+  .header {
+    padding: 0.75rem var(--spacing-lg);
+  }
+  
+  .screen {
+    padding: var(--spacing-lg);
+  }
+  
+  .player-info {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+  
+  .player-info .player-card {
+    flex: 1;
+    max-width: 50%;
+  }
+  
+  .dice-row {
+    justify-content: center;
+  }
+  
+  .button-container {
+    flex-direction: column;
+  }
+  
+  .button-container .button {
+    width: 100%;
+  }
+  
+  .army-buttons {
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+  
+  .army-button {
+    font-size: 1.5rem;
+    border-radius: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .player-cards {
+    gap: 0.75rem;
+  }
+  
+  .player-card {
+    padding: var(--spacing-lg);
+  }
+  
+  .army-buttons {
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+  }
+  
+  .army-button {
+    font-size: 1.25rem;
+    border-radius: var(--border-radius-md);
+  }
+  
+  .dice-row {
+    gap: var(--spacing-sm);
+  }
+  
+  .die {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+  }
+}
+
+/* Tablet and desktop improvements */
+@media (min-width: 768px) {
+  .player-selection-grid {
+    max-width: 24rem;
+  }
+  
+  .army-buttons {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 32rem;
+  }
+  
+  .dice-container {
+    max-width: 28rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .screen-content {
+    max-width: 48rem;
+  }
+  
+  .army-buttons {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* High resolution displays */
+@media (min-resolution: 2dppx) {
+  .die {
+    border-width: 1px;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 600px) {
+  .screen-header {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  .screen-content {
+    padding: var(--spacing-xs) var(--spacing-md);
+  }
+  
+  .battle-screen {
+    padding: var(--spacing-sm);
+  }
+  
+  .dice-container {
+    gap: var(--spacing-sm);
+  }
+  
+  .dice-display {
+    gap: var(--spacing-md);
+  }
+}
