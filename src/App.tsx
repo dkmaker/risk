@@ -37,11 +37,18 @@ export default function App() {
 
   // Load saved players on startup - go to attacker selection if players exist
   useEffect(() => {
-    if (isLoaded && savedPlayers.length >= 2 && currentScreen === "setup" && !manualNavigation) {
+    const dataLoaded = isLoaded;
+    const hasEnoughPlayers = savedPlayers.length >= 2;
+    const isOnSetupScreen = currentScreen === "setup";
+    const isAutoNavigation = !manualNavigation;
+    const shouldAutoInitialize =
+      dataLoaded && hasEnoughPlayers && isOnSetupScreen && isAutoNavigation;
+
+    if (shouldAutoInitialize) {
       // Auto-initialize game with saved players and go to attacker selection
       initializeGame(savedPlayers);
     }
-  }, [isLoaded, savedPlayers, currentScreen, manualNavigation]);
+  }, [isLoaded, savedPlayers, currentScreen, manualNavigation, initializeGame]);
 
   const getHeaderIcon = (): HeaderIcon => {
     switch (currentScreen) {
@@ -83,7 +90,9 @@ export default function App() {
 
   const handleHomeClick = () => {
     // Go back to attacker selection (start new battle)
-    if (players.length >= 2) {
+    const hasEnoughPlayers = players.length >= 2;
+
+    if (hasEnoughPlayers) {
       setManualNavigation(true);
       initializeGame(players);
     }

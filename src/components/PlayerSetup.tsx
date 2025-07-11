@@ -25,6 +25,7 @@ const PLAYER_COLORS: Array<{
 
 export default function PlayerSetup({ onPlayersReady, existingPlayers = [] }: PlayerSetupProps) {
   const { t } = useTranslation();
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [playerNames, setPlayerNames] = useState<Record<PlayerColor, string>>(() => {
     const initial: Record<PlayerColor, string> = {
       red: "",
@@ -37,7 +38,10 @@ export default function PlayerSetup({ onPlayersReady, existingPlayers = [] }: Pl
 
     // Restore existing player names
     for (const player of existingPlayers) {
-      if (player.colorName && player.colorName in initial) {
+      const hasColorName = player.colorName;
+      const isValidColor = hasColorName && player.colorName in initial;
+
+      if (isValidColor) {
         initial[player.colorName as PlayerColor] = player.name;
       }
     }
@@ -58,7 +62,10 @@ export default function PlayerSetup({ onPlayersReady, existingPlayers = [] }: Pl
 
     // Restore existing player names
     for (const player of existingPlayers) {
-      if (player.colorName && player.colorName in updated) {
+      const hasColorName = player.colorName;
+      const isValidColor = hasColorName && player.colorName in updated;
+
+      if (isValidColor) {
         updated[player.colorName as PlayerColor] = player.name;
       }
     }
@@ -78,7 +85,9 @@ export default function PlayerSetup({ onPlayersReady, existingPlayers = [] }: Pl
 
     for (const { key, color } of PLAYER_COLORS) {
       const name = playerNames[key].trim();
-      if (name) {
+      const hasValidName = name.length > 0;
+
+      if (hasValidName) {
         players.push({
           name,
           color,
@@ -87,11 +96,16 @@ export default function PlayerSetup({ onPlayersReady, existingPlayers = [] }: Pl
       }
     }
 
-    if (players.length < 2) {
-      alert(t("enterAtLeastTwoPlayers"));
+    const hasEnoughPlayers = players.length >= 2;
+
+    if (!hasEnoughPlayers) {
+      setErrorMessage(t("enterAtLeastTwoPlayers"));
+      // Clear error after 5 seconds
+      setTimeout(() => setErrorMessage(""), 5000);
       return;
     }
 
+    setErrorMessage("");
     onPlayersReady(players);
   };
 
@@ -103,6 +117,24 @@ export default function PlayerSetup({ onPlayersReady, existingPlayers = [] }: Pl
       </div>
 
       <div className="screen-content">
+        {errorMessage && (
+          <div
+            className="error-message"
+            role="alert"
+            aria-live="polite"
+            style={{
+              backgroundColor: "#ff6b6b",
+              color: "white",
+              padding: "12px",
+              borderRadius: "8px",
+              marginBottom: "16px",
+              textAlign: "center",
+              fontWeight: "bold",
+            }}
+          >
+            {errorMessage}
+          </div>
+        )}
         <div className="player-grid">
           {PLAYER_COLORS.map(({ key, color, nameKey }) => (
             <PlayerColorCard

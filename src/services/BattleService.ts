@@ -100,10 +100,13 @@ export class BattleService {
    * Execute a complete battle round
    */
   executeBattleRound(attackerArmies: number, defenderArmies: number): DiceComparisonResult {
-    if (attackerArmies < 1) {
+    const invalidAttackerArmies = attackerArmies < 1;
+    const invalidDefenderArmies = defenderArmies < 1;
+
+    if (invalidAttackerArmies) {
       throw new Error("Attacker must have at least 1 army");
     }
-    if (defenderArmies < 1) {
+    if (invalidDefenderArmies) {
       throw new Error("Defender must have at least 1 army");
     }
 
@@ -133,7 +136,9 @@ export class BattleService {
     let attackerArmies = initialAttackerArmies;
     let defenderArmies = initialDefenderArmies;
 
-    while (attackerArmies >= 1 && defenderArmies > 0) {
+    const canContinueBattle = () => attackerArmies >= 1 && defenderArmies > 0;
+
+    while (canContinueBattle()) {
       const result = this.executeBattleRound(attackerArmies, defenderArmies);
       rounds.push(result);
 
@@ -141,7 +146,8 @@ export class BattleService {
       defenderArmies -= result.defenderLosses;
     }
 
-    const winner = defenderArmies === 0 ? "attacker" : "defender";
+    const defenderEliminated = defenderArmies === 0;
+    const winner = defenderEliminated ? "attacker" : "defender";
 
     return {
       rounds,
@@ -170,8 +176,9 @@ export class BattleService {
 
     for (let i = 0; i < simulations; i++) {
       const result = this.simulateCompleteBattle(attackerArmies, defenderArmies);
+      const attackerWon = result.winner === "attacker";
 
-      if (result.winner === "attacker") {
+      if (attackerWon) {
         attackerWins++;
       }
 
@@ -196,14 +203,19 @@ export class BattleService {
     defenderName: string
   ): string {
     const { attackerLosses, defenderLosses } = result;
+    const defenderWon = attackerLosses > defenderLosses;
+    const attackerWon = defenderLosses > attackerLosses;
 
-    if (attackerLosses > defenderLosses) {
-      return `${defenderName} wins this round! ${attackerName} loses ${attackerLosses} ${attackerLosses === 1 ? "army" : "armies"}.`;
-    } else if (defenderLosses > attackerLosses) {
-      return `${attackerName} wins this round! ${defenderName} loses ${defenderLosses} ${defenderLosses === 1 ? "army" : "armies"}.`;
-    } else {
-      return `Tie round! Both players lose ${attackerLosses} ${attackerLosses === 1 ? "army" : "armies"}.`;
+    if (defenderWon) {
+      const armyText = attackerLosses === 1 ? "army" : "armies";
+      return `${defenderName} wins this round! ${attackerName} loses ${attackerLosses} ${armyText}.`;
     }
+    if (attackerWon) {
+      const armyText = defenderLosses === 1 ? "army" : "armies";
+      return `${attackerName} wins this round! ${defenderName} loses ${defenderLosses} ${armyText}.`;
+    }
+    const armyText = attackerLosses === 1 ? "army" : "armies";
+    return `Tie round! Both players lose ${attackerLosses} ${armyText}.`;
   }
 }
 

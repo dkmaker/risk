@@ -7,7 +7,7 @@
 .battle-screen {
   display: grid;
   grid-template-rows: min-content 1fr min-content;
-  grid-template-areas: 
+  grid-template-areas:
     "player-cards"
     "dice-area"
     "controls";
@@ -62,7 +62,7 @@
 }
 
 .player-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;

@@ -21,7 +21,7 @@ export function useTranslation() {
     if (savedLanguage && isLanguageSupported(savedLanguage) && savedLanguage !== currentLang) {
       changeLanguage(savedLanguage as Language);
     }
-  }, []);
+  }, [currentLang]);
 
   /**
    * Change language and persist to storage
@@ -105,9 +105,9 @@ export function useTranslation() {
   ): string => {
     let translation = t(key);
 
-    Object.entries(values).forEach(([placeholder, value]) => {
+    for (const [placeholder, value] of Object.entries(values)) {
       translation = translation.replace(`{{${placeholder}}}`, String(value));
-    });
+    }
 
     return translation;
   };

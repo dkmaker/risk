@@ -9,19 +9,19 @@
   .button-danger {
     border: 2px solid currentColor;
   }
-  
+
   .player-card {
     border: 2px solid rgba(255, 255, 255, 0.5);
   }
-  
+
   .die {
     border-width: 3px;
   }
-  
+
   .army-button {
     border: 2px solid currentColor;
   }
-  
+
   .player-select-button {
     border: 2px solid rgba(255, 255, 255, 0.5);
   }
@@ -34,19 +34,19 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  
+
   .rolling-dice {
     animation: none;
   }
-  
+
   .player-card::before {
     display: none;
   }
-  
+
   .army-button::before {
     display: none;
   }
-  
+
   .animate-spin,
   .animate-pulse,
   .animate-bounce {
@@ -88,30 +88,30 @@
   .screen-footer {
     display: none;
   }
-  
+
   .app {
     background: white;
     color: black;
   }
-  
+
   .player-card,
   .die {
     border: 2px solid black !important;
     box-shadow: none !important;
   }
-  
+
   .screen-content {
     padding: 0;
   }
-  
+
   .battle-screen {
     padding: 0;
   }
-  
+
   .dice-display {
     gap: 1rem;
   }
-  
+
   .player-info {
     margin-bottom: 1rem;
   }

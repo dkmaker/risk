@@ -22,7 +22,12 @@ export default function PlayerColorCard({
 
   return (
     <div className="player-color-card" data-color={color}>
-      <div className="color-swatch" style={{ backgroundColor: color }} />
+      <div
+        className="color-swatch"
+        style={{ backgroundColor: color }}
+        role="img"
+        aria-label={`${colorKey} color`}
+      />
       <input
         type="text"
         className="player-name-on-card"
@@ -31,6 +36,8 @@ export default function PlayerColorCard({
         value={value}
         onInput={handleInputChange}
         maxLength={20}
+        aria-label={`Enter name for ${colorKey} player`}
+        id={`player-input-${colorKey}`}
       />
     </div>
   );

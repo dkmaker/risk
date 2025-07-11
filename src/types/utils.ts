@@ -240,7 +240,7 @@ export type Mixin<T> = Constructor<T>;
 /**
  * Class decorator type
  */
-export type ClassDecorator = <T extends Constructor>(target: T) => T | void;
+export type ClassDecorator = <T extends Constructor>(target: T) => T | undefined;
 
 /**
  * Method decorator type
@@ -249,7 +249,7 @@ export type MethodDecorator = <T>(
   target: any,
   propertyKey: string | symbol,
   descriptor: TypedPropertyDescriptor<T>
-) => TypedPropertyDescriptor<T> | void;
+) => TypedPropertyDescriptor<T> | undefined;
 
 /**
  * Property decorator type

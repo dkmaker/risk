@@ -44,7 +44,9 @@ export class GameService {
    */
   private setState(updates: Partial<GameServiceState>): void {
     this.state = { ...this.state, ...updates };
-    this.listeners.forEach((listener) => listener(this.getState()));
+    for (const listener of this.listeners) {
+      listener(this.getState());
+    }
   }
 
   /**
@@ -97,11 +99,16 @@ export class GameService {
    * Select defender for battle
    */
   selectDefender(playerIndex: number): void {
-    if (!this.state.isGameActive || !this.state.attacker) {
+    const isGameInactive = !this.state.isGameActive;
+    const noAttackerSelected = !this.state.attacker;
+    const samePlayerAsAttacker =
+      this.state.attacker && playerIndex === this.state.attacker.playerIndex;
+
+    if (isGameInactive || noAttackerSelected) {
       throw new Error("Invalid game state for defender selection");
     }
 
-    if (playerIndex === this.state.attacker.playerIndex) {
+    if (samePlayerAsAttacker) {
       throw new Error("Defender cannot be the same as attacker");
     }
 
@@ -130,12 +137,19 @@ export class GameService {
    * Set attacker army count
    */
   setAttackerArmies(count: number): void {
-    if (!this.state.attacker) {
+    const noAttackerSelected = !this.state.attacker;
+    const invalidArmyCount = count < 1 || count > 50;
+
+    if (noAttackerSelected) {
       throw new Error("No attacker selected");
     }
 
-    if (count < 1 || count > 50) {
+    if (invalidArmyCount) {
       throw new Error("Army count must be between 1 and 50");
+    }
+
+    if (!this.state.attacker) {
+      throw new Error("No attacker selected");
     }
 
     this.setState({
@@ -152,12 +166,19 @@ export class GameService {
    * Set defender army count
    */
   setDefenderArmies(count: number): void {
-    if (!this.state.defender) {
+    const noDefenderSelected = !this.state.defender;
+    const invalidArmyCount = count < 1 || count > 50;
+
+    if (noDefenderSelected) {
       throw new Error("No defender selected");
     }
 
-    if (count < 1 || count > 50) {
+    if (invalidArmyCount) {
       throw new Error("Army count must be between 1 and 50");
+    }
+
+    if (!this.state.defender) {
+      throw new Error("No defender selected");
     }
 
     this.setState({
@@ -174,7 +195,13 @@ export class GameService {
    * Update army counts after battle round
    */
   updateArmyCounts(attackerLoss: number, defenderLoss: number): void {
-    if (!this.state.attacker || !this.state.defender) {
+    const invalidBattleState = !(this.state.attacker && this.state.defender);
+
+    if (invalidBattleState) {
+      throw new Error("Invalid battle state");
+    }
+
+    if (!(this.state.attacker && this.state.defender)) {
       throw new Error("Invalid battle state");
     }
 
@@ -198,30 +225,27 @@ export class GameService {
    * Check if battle is over
    */
   isBattleOver(): boolean {
-    if (!this.state.attacker || !this.state.defender) {
+    if (!(this.state.attacker && this.state.defender)) {
       return false;
     }
 
-    return this.state.attacker.armies < 1 || this.state.defender.armies === 0;
+    const attackerDefeated = this.state.attacker.armies < 1;
+    const defenderDefeated = this.state.defender.armies === 0;
+
+    return attackerDefeated || defenderDefeated;
   }
 
   /**
    * Get battle winner
    */
   getBattleWinner(): "attacker" | "defender" | null {
-    if (!this.isBattleOver()) {
+    if (!(this.isBattleOver() && this.state.attacker && this.state.defender)) {
       return null;
     }
 
-    if (!this.state.attacker || !this.state.defender) {
-      return null;
-    }
+    const defenderDefeated = this.state.defender.armies === 0;
 
-    if (this.state.defender.armies === 0) {
-      return "attacker";
-    }
-
-    return "defender";
+    return defenderDefeated ? "attacker" : "defender";
   }
 
   /**

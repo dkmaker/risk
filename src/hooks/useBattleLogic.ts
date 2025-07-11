@@ -109,21 +109,29 @@ export function useBattleLogic() {
    * Get dice display data for current result
    */
   const getDiceDisplay = () => {
-    if (!battleState.lastResult) {
+    const hasResult = battleState.lastResult !== null;
+
+    if (!hasResult) {
       return null;
     }
 
-    const { attackerDice, defenderDice, comparisons } = battleState.lastResult;
+    const { attackerDice, defenderDice, comparisons } = battleState.lastResult!;
 
     return {
-      attackerDice: attackerDice.map((value, index) => ({
-        value,
-        isWinner: comparisons[index]?.winner === "attacker",
-      })),
-      defenderDice: defenderDice.map((value, index) => ({
-        value,
-        isWinner: comparisons[index]?.winner === "defender",
-      })),
+      attackerDice: attackerDice.map((value: number, index: number) => {
+        const attackerWon = comparisons[index]?.winner === "attacker";
+        return {
+          value,
+          isWinner: attackerWon,
+        };
+      }),
+      defenderDice: defenderDice.map((value: number, index: number) => {
+        const defenderWon = comparisons[index]?.winner === "defender";
+        return {
+          value,
+          isWinner: defenderWon,
+        };
+      }),
     };
   };
 
@@ -131,7 +139,10 @@ export function useBattleLogic() {
    * Check if battle round can be executed
    */
   const canRoll = (): boolean => {
-    return battleState.animationPhase === "idle" && !battleState.isRolling;
+    const isIdle = battleState.animationPhase === "idle";
+    const notRolling = !battleState.isRolling;
+
+    return isIdle && notRolling;
   };
 
   return {

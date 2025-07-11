@@ -14,9 +14,9 @@
  * - Comprehensive error reporting
  */
 
-import { execSync } from "child_process";
-import fs from "fs";
-import path from "path";
+import { execSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 
 // AI instructions for common linting issues
 const AI_INSTRUCTIONS = {
@@ -131,7 +131,7 @@ function runTypeScriptCheck(files) {
 
     // Run TypeScript compiler on entire project to avoid JSX context issues
     // Individual file checks don't have access to full tsconfig.json context
-    const result = execSync(`npx tsc --noEmit`, {
+    const result = execSync("npx tsc --noEmit", {
       encoding: "utf8",
       cwd: process.cwd(),
       stdio: "pipe",
@@ -148,7 +148,7 @@ function runTypeScriptCheck(files) {
 
 function parseTypeScriptOutput(output, errors) {
   const issues = [];
-  const allOutput = (output + "\n" + (errors || "")).trim();
+  const allOutput = `${output}\n${errors || ""}`.trim();
 
   if (!allOutput) {
     return issues;
@@ -162,7 +162,7 @@ function parseTypeScriptOutput(output, errors) {
     if (match) {
       const [, file, lineNum, col, severity, code, message] = match;
       issues.push({
-        file: file.replace(process.cwd() + "/", ""), // Make path relative
+        file: file.replace(`${process.cwd()}/`, ""), // Make path relative
         line: Number.parseInt(lineNum),
         column: Number.parseInt(col),
         severity: severity,
@@ -321,10 +321,9 @@ function generateClaudeInstructions(biomeIssues, tsIssues, aiPrompts, hadInitial
   if (biomeIssues.length === 0 && tsIssues.length === 0) {
     if (hadInitialIssues) {
       return "All auto-fixable issues have been resolved. No manual fixes required.";
-    } else {
-      // This shouldn't happen - if no issues remain and no initial issues, the hook should exit earlier
-      return "No code quality issues found.";
     }
+    // This shouldn't happen - if no issues remain and no initial issues, the hook should exit earlier
+    return "No code quality issues found.";
   }
 
   let instructions = "Code quality issues found that require your immediate attention:\n\n";
@@ -423,17 +422,17 @@ function main() {
   // Step 1: Run initial check to see if there are any issues before auto-fixing
   const initialLintResult = runBiomeCheck(modifiedFiles);
   const initialTsResult = runTypeScriptCheck(modifiedFiles);
-  const hadInitialIssues = !initialLintResult.success || !initialTsResult.success;
+  const hadInitialIssues = !(initialLintResult.success && initialTsResult.success);
 
   // Step 2: Run formatting (silently)
-  const formatResult = runBiomeFormat(modifiedFiles);
+  const _formatResult = runBiomeFormat(modifiedFiles);
 
   // Step 3: Run linting with auto-fix (first pass)
   const lintResult1 = runBiomeCheck(modifiedFiles);
 
   if (!lintResult1.success) {
     // Run Biome again after auto-fix to see if issues remain
-    const lintResult2 = runBiomeCheck(modifiedFiles);
+    const _lintResult2 = runBiomeCheck(modifiedFiles);
   }
 
   // Step 4: Run TypeScript checking
@@ -445,7 +444,7 @@ function main() {
   // Parse only remaining issues that couldn't be auto-fixed
   const remainingBiomeIssues = finalLintResult.success
     ? []
-    : parseBiomeOutput(finalLintResult.output + "\n" + (finalLintResult.errors || ""));
+    : parseBiomeOutput(`${finalLintResult.output}\n${finalLintResult.errors || ""}`);
   const tsIssues = tsResult.success ? [] : parseTypeScriptOutput(tsResult.output, tsResult.errors);
 
   // Only generate AI prompts for remaining unfixable Biome issues
@@ -454,9 +453,7 @@ function main() {
   // Check if all checks passed after auto-fixing
   if (finalLintResult.success && tsResult.success) {
     if (hadInitialIssues) {
-      console.log("✅ All auto-fixable issues have been resolved!");
     } else {
-      console.log("✅ All code quality checks passed!");
     }
     process.exit(0);
   } else {
@@ -469,13 +466,10 @@ function main() {
     );
 
     // Use advanced JSON output to instruct Claude how to fix the issues
-    const hookResponse = {
+    const _hookResponse = {
       decision: "block",
       reason: instructions,
     };
-
-    // Output JSON response to stdout for Claude to process
-    console.log(JSON.stringify(hookResponse, null, 2));
 
     // Exit with code 2 to block execution
     process.exit(2);

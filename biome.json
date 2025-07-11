@@ -169,7 +169,14 @@
   },
   "files": {
     "include": ["src/**/*", "*.js", "*.ts", "*.json", "*.css"],
-    "ignore": ["node_modules", "dist", "public", ".git"]
+    "ignore": [
+      "node_modules/**/*",
+      "dist/**/*",
+      "dev-dist/**/*",
+      ".claude/**/*",
+      "public/**/*",
+      ".git/**/*"
+    ]
   },
   "vcs": {
     "enabled": true,

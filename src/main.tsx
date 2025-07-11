@@ -2,7 +2,13 @@ import { render } from "preact";
 import App from "./App";
 
 // Mount the Preact app
-render(<App />, document.getElementById("app")!);
+const appElement = document.getElementById("app");
+if (!appElement) {
+  throw new Error(
+    "App element not found. Make sure there is an element with id 'app' in your HTML."
+  );
+}
+render(<App />, appElement);
 
 // Fix viewport height on iOS
 function setAppHeight() {

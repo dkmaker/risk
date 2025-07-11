@@ -11,6 +11,289 @@ import type { BattlePlayer, BattleResult, DiceRoll, GameState, Player } from "./
 type TranslationKeyPath = keyof TranslationKeys;
 
 /**
+ * Type definitions for replacing any types
+ */
+export interface ErrorContextData {
+  /** Component or module where error occurred */
+  component?: string;
+  /** Function or method name */
+  method?: string;
+  /** Additional metadata */
+  metadata?: Record<string, string | number | boolean>;
+  /** User action that triggered the error */
+  userAction?: string;
+  /** Request ID or correlation ID */
+  requestId?: string;
+}
+
+export interface BusinessContextData {
+  /** Business entity ID */
+  entityId?: string;
+  /** Business operation type */
+  operationType?: string;
+  /** Business rule that was violated */
+  violatedRule?: string;
+  /** Related entities */
+  relatedEntities?: string[];
+  /** Business process step */
+  processStep?: string;
+}
+
+export interface NetworkResponseData {
+  /** Response headers */
+  headers?: Record<string, string>;
+  /** Response body */
+  body?: string | object;
+  /** Response status text */
+  statusText?: string;
+  /** Response size in bytes */
+  size?: number;
+  /** Response time in milliseconds */
+  responseTime?: number;
+}
+
+export type StorageValue = string | number | boolean | object | null;
+
+export interface TranslationParams {
+  /** Named parameters for interpolation */
+  [key: string]: string | number | boolean;
+}
+
+export interface ValidationTarget {
+  /** Target type (form, object, etc.) */
+  type: string;
+  /** Target identifier */
+  id?: string;
+  /** Target data */
+  data?: Record<string, unknown>;
+  /** Target schema */
+  schema?: string;
+}
+
+export interface PlayerHistoryEntry {
+  /** Timestamp of the action */
+  timestamp: number;
+  /** Action type */
+  action: string;
+  /** Action details */
+  details?: Record<string, unknown>;
+  /** Previous state */
+  previousState?: Record<string, unknown>;
+  /** New state */
+  newState?: Record<string, unknown>;
+}
+
+export interface ErrorInfo {
+  /** Component stack trace */
+  componentStack?: string;
+  /** Error boundary name */
+  errorBoundary?: string;
+  /** Error boundary stack */
+  errorBoundaryStack?: string;
+  /** Props at time of error */
+  props?: Record<string, unknown>;
+  /** State at time of error */
+  state?: Record<string, unknown>;
+}
+
+export interface ValidationOptions {
+  /** Validation mode */
+  mode?: "strict" | "loose";
+  /** Skip validation for certain fields */
+  skipFields?: string[];
+  /** Custom validation messages */
+  messages?: Record<string, string>;
+  /** Validation timeout in milliseconds */
+  timeout?: number;
+}
+
+export interface GameSettings {
+  /** Game difficulty level */
+  difficulty?: "easy" | "medium" | "hard";
+  /** Sound enabled */
+  soundEnabled?: boolean;
+  /** Animation speed */
+  animationSpeed?: "slow" | "normal" | "fast";
+  /** Auto-save enabled */
+  autoSave?: boolean;
+  /** Language setting */
+  language?: string;
+}
+
+export interface GameStatistics {
+  /** Total games played */
+  totalGames?: number;
+  /** Games won */
+  gamesWon?: number;
+  /** Games lost */
+  gamesLost?: number;
+  /** Average battle duration */
+  averageBattleDuration?: number;
+  /** Total playtime */
+  totalPlaytime?: number;
+}
+
+export interface PlayerState {
+  /** Player is active */
+  isActive?: boolean;
+  /** Player is ready */
+  isReady?: boolean;
+  /** Player connection status */
+  connectionStatus?: "connected" | "disconnected" | "reconnecting";
+  /** Player preferences */
+  preferences?: Record<string, unknown>;
+}
+
+export interface BattleSettings {
+  /** Battle mode */
+  mode?: "standard" | "quick" | "custom";
+  /** Time limit per turn */
+  turnTimeLimit?: number;
+  /** Allow withdrawals */
+  allowWithdrawals?: boolean;
+  /** Show dice animations */
+  showAnimations?: boolean;
+}
+
+export interface DiceConfiguration {
+  /** Number of dice sides */
+  sides?: number;
+  /** Dice animation duration */
+  animationDuration?: number;
+  /** Dice color scheme */
+  colorScheme?: string;
+  /** Sound effects enabled */
+  soundEffects?: boolean;
+}
+
+export interface DiceState {
+  /** Current dice values */
+  values?: number[];
+  /** Dice are rolling */
+  isRolling?: boolean;
+  /** Roll count */
+  rollCount?: number;
+  /** Last roll timestamp */
+  lastRoll?: number;
+}
+
+export interface AnimationState {
+  /** Animation is playing */
+  isPlaying?: boolean;
+  /** Animation progress (0-1) */
+  progress?: number;
+  /** Animation duration */
+  duration?: number;
+  /** Animation easing */
+  easing?: string;
+}
+
+export interface ServiceConfiguration {
+  /** Service name */
+  name?: string;
+  /** Service version */
+  version?: string;
+  /** Service endpoints */
+  endpoints?: string[];
+  /** Service timeout */
+  timeout?: number;
+  /** Service retry count */
+  retryCount?: number;
+}
+
+export interface ServiceState {
+  /** Service status */
+  status?: "starting" | "running" | "stopping" | "stopped" | "error";
+  /** Service health */
+  health?: "healthy" | "unhealthy" | "degraded";
+  /** Service uptime */
+  uptime?: number;
+  /** Service metrics */
+  metrics?: Record<string, number>;
+}
+
+export interface ComponentProps {
+  /** Component properties */
+  [key: string]: unknown;
+}
+
+export interface ComponentState {
+  /** Component state properties */
+  [key: string]: unknown;
+}
+
+export interface ComponentRefs {
+  /** Component references */
+  [key: string]: unknown;
+}
+
+export interface ComponentHandlers {
+  /** Component event handlers */
+  [key: string]: (...args: unknown[]) => void;
+}
+
+export interface WarningContextData {
+  /** Warning source */
+  source?: string;
+  /** Warning category */
+  category?: string;
+  /** Warning metadata */
+  metadata?: Record<string, unknown>;
+  /** Warning suggestions */
+  suggestions?: string[];
+}
+
+export interface ValidationMetadataContext {
+  /** Validation run ID */
+  runId?: string;
+  /** Validation environment */
+  environment?: string;
+  /** Validation configuration */
+  configuration?: Record<string, unknown>;
+  /** Validation dependencies */
+  dependencies?: string[];
+}
+
+export interface ValidationRuleOptions {
+  /** Rule is required */
+  required?: boolean;
+  /** Rule priority */
+  priority?: number;
+  /** Rule timeout */
+  timeout?: number;
+  /** Rule parameters */
+  parameters?: Record<string, unknown>;
+}
+
+export interface ErrorReportingOptions {
+  /** Reporting endpoint URL */
+  endpoint?: string;
+  /** API key for reporting */
+  apiKey?: string;
+  /** Batch size for reporting */
+  batchSize?: number;
+  /** Retry attempts */
+  retryAttempts?: number;
+  /** Include stack traces */
+  includeStackTrace?: boolean;
+  /** Include user context */
+  includeUserContext?: boolean;
+}
+
+export interface ErrorBoundaryContext {
+  /** Boundary name */
+  boundaryName?: string;
+  /** Parent boundary */
+  parentBoundary?: string;
+  /** Boundary level */
+  level?: number;
+  /** Fallback component */
+  fallbackComponent?: string;
+  /** Recovery strategies */
+  recoveryStrategies?: string[];
+}
+
+/**
  * Base error interface that all errors should extend
  */
 export interface BaseError {
@@ -23,7 +306,7 @@ export interface BaseError {
   /** Error severity level */
   severity: ErrorSeverity;
   /** Error context data */
-  context?: Record<string, any>;
+  context?: ErrorContextData;
   /** Error stack trace */
   stack?: string;
   /** Error cause (nested error) */
@@ -65,9 +348,9 @@ export interface ValidationError extends BaseError {
   /** Validation rule that failed */
   rule: string;
   /** Expected value or constraint */
-  expected: any;
+  expected: unknown;
   /** Actual value that failed */
-  actual: any;
+  actual: unknown;
   /** Validation context */
   validationContext?: ValidationContext;
 }
@@ -81,7 +364,7 @@ export interface BusinessLogicError extends BaseError {
   /** Entity involved in the error */
   entity: string;
   /** Business context */
-  businessContext?: Record<string, any>;
+  businessContext?: BusinessContextData;
 }
 
 /**
@@ -107,7 +390,7 @@ export interface NetworkError extends BaseError {
   /** Request method */
   method?: string;
   /** Response data */
-  response?: any;
+  response?: NetworkResponseData;
   /** Network error type */
   networkErrorType: NetworkErrorType;
 }
@@ -123,7 +406,7 @@ export interface StorageError extends BaseError {
   /** Storage key */
   key?: string;
   /** Storage value */
-  value?: any;
+  value?: StorageValue;
 }
 
 /**
@@ -189,7 +472,7 @@ export interface TranslationError extends BaseError {
   /** Language */
   language: string;
   /** Translation parameters */
-  params?: Record<string, any>;
+  params?: TranslationParams;
   /** Translation operation */
   operation: TranslationOperation;
 }
@@ -352,9 +635,9 @@ export interface ValidationContext {
   /** Validation rules applied */
   rules: string[];
   /** Validation options */
-  options: Record<string, any>;
+  options: ValidationOptions;
   /** Form or object being validated */
-  target: any;
+  target: ValidationTarget;
 }
 
 export interface SystemContext {
@@ -387,20 +670,20 @@ export interface GameContext {
   /** Players in game */
   players: Player[];
   /** Game settings */
-  settings: Record<string, any>;
+  settings: GameSettings;
   /** Game statistics */
-  stats: Record<string, any>;
+  stats: GameStatistics;
 }
 
 export interface PlayerContext {
   /** Player data */
   player: Player | BattlePlayer;
   /** Player state */
-  state: Record<string, any>;
+  state: PlayerState;
   /** Player interactions */
   interactions: string[];
   /** Player history */
-  history: any[];
+  history: PlayerHistoryEntry[];
 }
 
 export interface BattleContext {
@@ -413,23 +696,23 @@ export interface BattleContext {
   /** Battle history */
   history: BattleResult[];
   /** Battle settings */
-  settings: Record<string, any>;
+  settings: BattleSettings;
 }
 
 export interface DiceContext {
   /** Dice configuration */
-  config: Record<string, any>;
+  config: DiceConfiguration;
   /** Dice state */
-  state: Record<string, any>;
+  state: DiceState;
   /** Animation state */
-  animation: Record<string, any>;
+  animation: AnimationState;
 }
 
 export interface ServiceContext {
   /** Service configuration */
-  config: Record<string, any>;
+  config: ServiceConfiguration;
   /** Service state */
-  state: Record<string, any>;
+  state: ServiceState;
   /** Service dependencies */
   dependencies: string[];
   /** Service health */
@@ -438,13 +721,13 @@ export interface ServiceContext {
 
 export interface UIContext {
   /** Component props */
-  props: Record<string, any>;
+  props: ComponentProps;
   /** Component state */
-  state: Record<string, any>;
+  state: ComponentState;
   /** Component refs */
-  refs: Record<string, any>;
+  refs: ComponentRefs;
   /** Component event handlers */
-  handlers: Record<string, any>;
+  handlers: ComponentHandlers;
 }
 
 /**
@@ -474,7 +757,7 @@ export interface ValidationWarning {
   /** Warning severity */
   severity: "low" | "medium" | "high";
   /** Warning context */
-  context?: Record<string, any>;
+  context?: WarningContextData;
 }
 
 /**
@@ -488,7 +771,7 @@ export interface ValidationMetadata {
   /** Validation rules applied */
   rulesApplied: string[];
   /** Validation context */
-  context: Record<string, any>;
+  context: ValidationMetadataContext;
 }
 
 /**
@@ -504,7 +787,7 @@ export interface ValidationRule<T = any> {
   /** Error message template */
   errorMessage: string;
   /** Rule options */
-  options?: Record<string, any>;
+  options?: ValidationRuleOptions;
   /** Rule dependencies */
   dependencies?: string[];
 }
@@ -564,7 +847,7 @@ export interface ErrorReportingConfig {
   /** Reporting endpoints */
   endpoints: string[];
   /** Reporting options */
-  options: Record<string, any>;
+  options: ErrorReportingOptions;
 }
 
 /**
@@ -603,7 +886,7 @@ export interface ErrorRecovery {
  */
 export interface ErrorBoundary {
   /** Catch error */
-  catch(error: Error, errorInfo: any): void;
+  catch(error: Error, errorInfo: ErrorInfo): void;
   /** Reset error state */
   reset(): void;
   /** Get error state */
@@ -619,9 +902,9 @@ export interface ErrorBoundaryState {
   /** Error that was caught */
   error: Error | null;
   /** Error info */
-  errorInfo: any;
+  errorInfo: ErrorInfo;
   /** Error boundary context */
-  context: Record<string, any>;
+  context: ErrorBoundaryContext;
 }
 
 /**
@@ -640,7 +923,7 @@ export interface ErrorFactory {
     rule: string,
     entity: string,
     message: string,
-    context?: Record<string, any>
+    context?: BusinessContextData
   ): BusinessLogicError;
   /** Create system error */
   createSystemError(

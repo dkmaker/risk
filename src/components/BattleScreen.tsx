@@ -29,10 +29,7 @@ function PlayerCard({
   isLoser,
   isTie,
 }: PlayerCardProps) {
-  let cardClass = "player-card";
-  if (isWinner) cardClass += " card-winner";
-  if (isLoser) cardClass += " card-loser";
-  if (isTie) cardClass += " card-tie";
+  const cardClass = `player-card${isWinner ? " card-winner" : ""}${isLoser ? " card-loser" : ""}${isTie ? " card-tie" : ""}`;
 
   return (
     <div className={cardClass} style={{ backgroundColor: playerColor }}>
@@ -115,11 +112,13 @@ export default function BattleScreen() {
     }
 
     return () => {
-      if (interval) clearInterval(interval);
+      if (interval) {
+        clearInterval(interval);
+      }
     };
   }, [isRolling]);
 
-  if (!attacker || !defender) {
+  if (!(attacker && defender)) {
     return (
       <div className="screen-layout">
         <div className="screen-header">
@@ -136,7 +135,12 @@ export default function BattleScreen() {
   }
 
   const handleRollDice = async () => {
-    if (!canRollDice || !attacker || !defender) return;
+    const cannotRoll = !canRollDice;
+    const missingPlayers = !(attacker && defender);
+
+    if (cannotRoll || missingPlayers) {
+      return;
+    }
 
     try {
       setRoundWinner(null);
@@ -157,9 +161,12 @@ export default function BattleScreen() {
         setResultMessage(message);
 
         // Determine round winner for card glow effects
-        if (result.attackerLosses > result.defenderLosses) {
+        const attackerLostMore = result.attackerLosses > result.defenderLosses;
+        const defenderLostMore = result.defenderLosses > result.attackerLosses;
+
+        if (attackerLostMore) {
           setRoundWinner("defender");
-        } else if (result.defenderLosses > result.attackerLosses) {
+        } else if (defenderLostMore) {
           setRoundWinner("attacker");
         } else {
           setRoundWinner("tie");
@@ -167,9 +174,13 @@ export default function BattleScreen() {
 
         // Check if battle is over
         setTimeout(() => {
-          if (isBattleOver()) {
+          const battleIsOver = isBattleOver();
+
+          if (battleIsOver) {
             const winner = getBattleWinner();
-            if (winner === "attacker") {
+            const attackerWon = winner === "attacker";
+
+            if (attackerWon) {
               setResultMessage(t("attackerWins").replace("{{name}}", attacker.name));
             } else {
               setResultMessage(t("defenderWins").replace("{{name}}", defender.name));
@@ -184,7 +195,9 @@ export default function BattleScreen() {
   };
 
   const handleWithdraw = () => {
-    if (showWithdrawConfirmation) {
+    const isConfirming = showWithdrawConfirmation;
+
+    if (isConfirming) {
       withdraw();
       setShowWithdrawConfirmation(false);
     } else {
@@ -200,7 +213,13 @@ export default function BattleScreen() {
   const diceDisplay = getDiceDisplay();
   const battleIsOver = isBattleOver();
   const canRollDice = canRoll() && !battleIsOver;
-  const currentDiceDisplay = isRolling ? rollingDice : diceDisplay || defaultDice;
+  const showRollingDice = isRolling && rollingDice;
+  const showStaticDice = !isRolling && (diceDisplay || defaultDice);
+  const currentDiceDisplay = showRollingDice
+    ? rollingDice
+    : showStaticDice
+      ? diceDisplay || defaultDice
+      : null;
 
   return (
     <div className="screen-layout battle-screen">
@@ -230,40 +249,57 @@ export default function BattleScreen() {
       <div
         className="dice-container"
         onClick={canRollDice ? handleRollDice : undefined}
+        onKeyDown={(e) => {
+          const isEnterOrSpace = e.key === "Enter" || e.key === " ";
+          const shouldRoll = canRollDice && isEnterOrSpace;
+
+          if (shouldRoll) {
+            e.preventDefault();
+            handleRollDice();
+          }
+        }}
         style={{ cursor: canRollDice ? "pointer" : "default" }}
+        role="button"
+        tabIndex={canRollDice ? 0 : -1}
+        aria-label={canRollDice ? t("rollDice") : t("battleOver")}
+        aria-disabled={!canRollDice}
       >
         {currentDiceDisplay && (
           <div className="dice-display">
             <div className="dice-row">
-              {currentDiceDisplay.attackerDice.map((die, index) => (
-                <div
-                  key={index}
-                  className={`die attacker-die ${die.isWinner ? "winner" : ""} ${isRolling ? "rolling" : ""}`}
-                  style={{
-                    backgroundColor: "#e74c3c",
-                    color: "white",
-                    borderColor: "#c0392b",
-                  }}
-                >
-                  {die.value}
-                </div>
-              ))}
+              {currentDiceDisplay.attackerDice.map(
+                (die: { value: number; isWinner: boolean }, index: number) => (
+                  <div
+                    key={index}
+                    className={`die attacker-die ${die.isWinner ? "winner" : ""} ${isRolling ? "rolling" : ""}`}
+                    style={{
+                      backgroundColor: "#e74c3c",
+                      color: "white",
+                      borderColor: "#c0392b",
+                    }}
+                  >
+                    {die.value}
+                  </div>
+                )
+              )}
             </div>
             <div className="vs-divider">VS</div>
             <div className="dice-row">
-              {currentDiceDisplay.defenderDice.map((die, index) => (
-                <div
-                  key={index}
-                  className={`die defender-die ${die.isWinner ? "winner" : ""} ${isRolling ? "rolling" : ""}`}
-                  style={{
-                    backgroundColor: "#3498db",
-                    color: "white",
-                    borderColor: "#2980b9",
-                  }}
-                >
-                  {die.value}
-                </div>
-              ))}
+              {currentDiceDisplay.defenderDice.map(
+                (die: { value: number; isWinner: boolean }, index: number) => (
+                  <div
+                    key={index}
+                    className={`die defender-die ${die.isWinner ? "winner" : ""} ${isRolling ? "rolling" : ""}`}
+                    style={{
+                      backgroundColor: "#3498db",
+                      color: "white",
+                      borderColor: "#2980b9",
+                    }}
+                  >
+                    {die.value}
+                  </div>
+                )
+              )}
             </div>
           </div>
         )}

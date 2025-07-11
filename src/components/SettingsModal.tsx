@@ -2,6 +2,7 @@
  * Settings Modal - Theme selection and app settings
  */
 
+import { useEffect, useRef } from "preact/hooks";
 import { useGameState } from "../hooks/useGameState";
 import { useTranslation } from "../hooks/useTranslation";
 import Button from "./shared/Button";
@@ -15,8 +16,77 @@ interface SettingsModalProps {
 export default function SettingsModal({ isOpen, onClose, onManualNavigation }: SettingsModalProps) {
   const { t } = useTranslation();
   const { goToPlayerSetup } = useGameState();
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const previouslyFocusedElement = useRef<HTMLElement | null>(null);
 
-  if (!isOpen) return null;
+  // Handle modal open/close with focus management
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) {
+      return;
+    }
+
+    if (isOpen) {
+      // Store the previously focused element
+      previouslyFocusedElement.current = document.activeElement as HTMLElement;
+
+      // Show modal and focus first focusable element
+      dialog.showModal();
+
+      // Focus the close button as it's the first focusable element
+      const closeButton = dialog.querySelector(".modal-close") as HTMLButtonElement;
+      if (closeButton) {
+        closeButton.focus();
+      }
+    } else {
+      // Close modal and restore focus
+      dialog.close();
+
+      // Restore focus to previously focused element
+      if (previouslyFocusedElement.current) {
+        previouslyFocusedElement.current.focus();
+      }
+    }
+  }, [isOpen]);
+
+  // Handle ESC key and click outside to close modal
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) {
+      return;
+    }
+
+    const handleCancel = (event: Event) => {
+      event.preventDefault();
+      onClose();
+    };
+
+    const handleClick = (event: MouseEvent) => {
+      const rect = dialog.getBoundingClientRect();
+      const isInDialog =
+        rect.top <= event.clientY &&
+        event.clientY <= rect.top + rect.height &&
+        rect.left <= event.clientX &&
+        event.clientX <= rect.left + rect.width;
+
+      if (!isInDialog) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      dialog.addEventListener("cancel", handleCancel);
+      dialog.addEventListener("click", handleClick);
+
+      return () => {
+        dialog.removeEventListener("cancel", handleCancel);
+        dialog.removeEventListener("click", handleClick);
+      };
+    }
+
+    // Return empty cleanup function when modal is not open
+    return () => {};
+  }, [isOpen, onClose]);
 
   const handlePlayerSetup = () => {
     onManualNavigation();
@@ -25,11 +95,21 @@ export default function SettingsModal({ isOpen, onClose, onManualNavigation }: S
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <dialog
+      ref={dialogRef}
+      className="modal-dialog"
+      aria-labelledby="modal-title"
+      aria-describedby="modal-description"
+    >
+      <div className="modal-content">
         <div className="modal-header">
-          <h2>{t("settings")}</h2>
-          <button type="button" className="modal-close" onClick={onClose}>
+          <h2 id="modal-title">{t("settings")}</h2>
+          <button
+            type="button"
+            className="modal-close"
+            onClick={onClose}
+            aria-label={`${t("close")} ${t("settings")}`}
+          >
             ✕
           </button>
         </div>
@@ -44,7 +124,9 @@ export default function SettingsModal({ isOpen, onClose, onManualNavigation }: S
 
           <div className="settings-section">
             <h3>{t("about")}</h3>
-            <p className="about-text">{t("appDescription")}</p>
+            <p id="modal-description" className="about-text">
+              {t("appDescription")}
+            </p>
             <p className="version-info">Version 1.0.0</p>
           </div>
         </div>
@@ -55,6 +137,6 @@ export default function SettingsModal({ isOpen, onClose, onManualNavigation }: S
           </Button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }

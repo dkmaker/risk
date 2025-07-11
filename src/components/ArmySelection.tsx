@@ -28,105 +28,91 @@ export default function ArmySelection({
 
   const handlePageChange = (direction: -1 | 1) => {
     const newPage = page + direction;
-    if (newPage >= 0 && newPage <= 4) {
+    const isValidPage = newPage >= 0 && newPage <= 4;
+
+    if (isValidPage) {
       setPage(newPage);
     }
   };
 
-  const renderArmyButtons = () => {
+  const createArmyButton = (number: number, className = "army-button") => {
+    return (
+      <Button
+        key={number}
+        variant={selectedArmies === number ? "primary" : "secondary"}
+        className={`${className} ${selectedArmies === number ? "selected" : ""}`}
+        onClick={() => handleArmySelect(number)}
+      >
+        {number}
+      </Button>
+    );
+  };
+
+  const createNavigationButton = (direction: "prev" | "next", symbol: string) => {
+    const isPrevious = direction === "prev";
+    const buttonAction = isPrevious ? () => handlePageChange(-1) : () => handlePageChange(1);
+
+    return (
+      <Button key={direction} variant="secondary" className="army-button" onClick={buttonAction}>
+        {symbol}
+      </Button>
+    );
+  };
+
+  const renderFirstPageButtons = () => {
     const buttons = [];
 
-    if (page === 0) {
-      // First page: 1-9, >
-      for (let i = 1; i <= 9; i++) {
-        buttons.push(
-          <Button
-            key={i}
-            variant={selectedArmies === i ? "primary" : "secondary"}
-            className={`army-button ${selectedArmies === i ? "selected" : ""}`}
-            onClick={() => handleArmySelect(i)}
-          >
-            {i}
-          </Button>
-        );
-      }
+    // Add number buttons 1-9
+    for (let i = 1; i <= 9; i++) {
+      buttons.push(createArmyButton(i));
+    }
 
-      if (page < 4) {
-        buttons.push(
-          <Button
-            key="next"
-            variant="secondary"
-            className="army-button"
-            onClick={() => handlePageChange(1)}
-          >
-            &gt;
-          </Button>
-        );
-      }
-    } else {
-      // Other pages: <, numbers, >
-      buttons.push(
-        <Button
-          key="prev"
-          variant="secondary"
-          className="army-btn"
-          onClick={() => handlePageChange(-1)}
-        >
-          &lt;
-        </Button>
-      );
-
-      const startNum = page * 9 + 1;
-      for (let i = 1; i <= 8; i++) {
-        const num = startNum + i - 1;
-        if (num <= 50) {
-          buttons.push(
-            <Button
-              key={num}
-              variant={selectedArmies === num ? "primary" : "secondary"}
-              className={`army-btn ${selectedArmies === num ? "selected" : ""}`}
-              onClick={() => handleArmySelect(num)}
-            >
-              {num}
-            </Button>
-          );
-        }
-      }
-
-      if (page < 4) {
-        buttons.push(
-          <Button
-            key="next"
-            variant="secondary"
-            className="army-button"
-            onClick={() => handlePageChange(1)}
-          >
-            &gt;
-          </Button>
-        );
-      } else {
-        // Last page - show 50
-        const lastNum = startNum + 8;
-        if (lastNum <= 50) {
-          buttons.push(
-            <Button
-              key={lastNum}
-              variant={selectedArmies === lastNum ? "primary" : "secondary"}
-              className={`army-btn ${selectedArmies === lastNum ? "selected" : ""}`}
-              onClick={() => handleArmySelect(lastNum)}
-            >
-              {lastNum}
-            </Button>
-          );
-        }
-      }
+    // Add next button if not on last page
+    const isNotLastPage = page < 4;
+    if (isNotLastPage) {
+      buttons.push(createNavigationButton("next", ">"));
     }
 
     return buttons;
   };
 
+  const renderOtherPageButtons = () => {
+    const buttons = [];
+
+    // Add previous button
+    buttons.push(createNavigationButton("prev", "<"));
+
+    // Add number buttons for current page
+    const startNum = page * 9 + 1;
+    const isLastPage = page >= 4;
+    const numbersToShow = isLastPage ? 9 : 8; // Last page shows 9 numbers
+
+    for (let i = 0; i < numbersToShow; i++) {
+      const num = startNum + i;
+      const isValidArmyCount = num <= 50;
+
+      if (isValidArmyCount) {
+        buttons.push(createArmyButton(num, "army-btn"));
+      }
+    }
+
+    // Add next button if not on last page
+    const isNotLastPage = page < 4;
+    if (isNotLastPage) {
+      buttons.push(createNavigationButton("next", ">"));
+    }
+
+    return buttons;
+  };
+
+  const renderArmyButtons = () => {
+    const isFirstPage = page === 0;
+    return isFirstPage ? renderFirstPageButtons() : renderOtherPageButtons();
+  };
+
   const backgroundGradient = `linear-gradient(135deg, ${playerColor} 0%, ${playerColor}88 100%)`;
-  const labelKey = playerType === "attacker" ? "numberOfArmiesAttack" : "numberOfArmiesDefend";
+  const isAttacker = playerType === "attacker";
+  const labelKey = isAttacker ? "numberOfArmiesAttack" : "numberOfArmiesDefend";
 
   return (
     <div className="screen-layout" style={{ background: backgroundGradient }}>

@@ -30,9 +30,11 @@ export default function PlayerSelection({
             return (
               <button
                 key={`${player.colorName}-${playerIndex}`}
+                type="button"
                 className="player-select-button"
                 style={{ backgroundColor: player.color }}
                 onClick={() => onPlayerSelect(player, playerIndex)}
+                aria-label={`Select ${player.name} as player`}
               >
                 {player.name}
               </button>
